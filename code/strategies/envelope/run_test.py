@@ -1,4 +1,5 @@
 import os
+import sys
 import ccxt
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
