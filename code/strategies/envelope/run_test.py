@@ -18,4 +18,4 @@ authentication = {
 bybit = BybitClient.init(authentication, USE_TESTNET)
 
 # Show balance
-bybitclient.get_balance(bybit)
+BybitClient.get_balance(bybit)
