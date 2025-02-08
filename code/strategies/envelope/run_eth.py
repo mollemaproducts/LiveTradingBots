@@ -179,6 +179,6 @@ if not open_position:
         if "3400114" in str(e):
             print(f"{datetime.now().strftime('%H:%M:%S')}: Margin mode change failed: Liquidation risk detected.")
         else:
-            raise e)
+            raise e
 
             # The rest of your trading logic continues here...
