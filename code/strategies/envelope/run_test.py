@@ -1,3 +1,4 @@
+import os
 import ccxt
 
 from utilities.bybit_client import BybitClient
