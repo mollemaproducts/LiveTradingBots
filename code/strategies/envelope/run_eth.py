@@ -141,6 +141,7 @@ if tracker_info['status'] != "ok_to_trade":
 
 # --- SET POSITION MODE, MARGIN MODE, LEVERAGE ---
 
+
 def change_margin_mode_and_leverage():
     try:
         print(f"{datetime.now().strftime('%H:%M:%S')}: Attempting to set margin mode and leverage...")
@@ -188,5 +189,20 @@ if not open_position:
             bitget.cancel_order(order['id'], params['symbol'])
             print(f"{datetime.now().strftime('%H:%M:%S')}: Cancelled order {order['id']}")
 
-    # Proceed to change margin mode and leverage
-    change_margin_mode_and_leverage()
+    # Change margin mode temporarily to 'cross' and leverage
+    print(f"{datetime.now().strftime('%H:%M:%S')}: Changing margin mode to 'cross' temporarily")
+    bitget.set_margin_mode(params['symbol'], margin_mode='cross')
+    bitget.set_leverage(params['symbol'], margin_mode='cross', leverage=params['leverage'])
+
+    # Wait for confirmation of mode change
+    print(f"{datetime.now().strftime('%H:%M:%S')}: Waiting 120 seconds after mode change...")
+    time.sleep(120)  # Ensure margin mode and leverage take effect
+
+    # After waiting, try changing it back to 'isolated' mode
+    print(f"{datetime.now().strftime('%H:%M:%S')}: Trying to change margin mode back to 'isolated' after 120s wait")
+    bitget.set_margin_mode(params['symbol'], margin_mode='isolated')
+    print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully changed margin mode back to 'isolated'.")
+
+    # Retry leverage change for isolated mode
+    bitget.set_leverage(params['symbol'], margin_mode='isolated', leverage=params['leverage'])
+    print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully set leverage for 'isolated' mode.")
