@@ -140,6 +140,23 @@ if tracker_info['status'] != "ok_to_trade":
         sys.exit()
 
 # --- SET POSITION MODE, MARGIN MODE, LEVERAGE ---
+
+def change_margin_mode_and_leverage():
+    try:
+        print(f"{datetime.now().strftime('%H:%M:%S')}: Attempting to set margin mode and leverage...")
+        bitget.set_margin_mode(params['symbol'], margin_mode=params['margin_mode'])
+        bitget.set_leverage(params['symbol'], margin_mode=params['margin_mode'], leverage=params['leverage'])
+        print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully set margin mode to {params['margin_mode']} and leverage to {params['leverage']}")
+    except ccxt.ExchangeError as e:
+        if "3400114" in str(e):
+            print(f"{datetime.now().strftime('%H:%M:%S')}: Margin mode change failed due to liquidation risk.")
+            print(f"Waiting 60 seconds before retrying...")
+            time.sleep(60)
+            # Retry after waiting 60 seconds
+            change_margin_mode_and_leverage()
+        else:
+            raise e
+
 if not open_position:
     positions = bitget.fetch_open_positions(params['symbol'])
     if positions:
@@ -153,15 +170,4 @@ if not open_position:
             print(f"{datetime.now().strftime('%H:%M:%S')}: Waiting for positions to close...")
             time.sleep(5)
 
-    # Retry mechanism if liquidation risk occurs
-    try:
-        bitget.set_margin_mode(params['symbol'], margin_mode=params['margin_mode'])
-        bitget.set_leverage(params['symbol'], margin_mode=params['margin_mode'], leverage=params['leverage'])
-        print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully set margin mode to {params['margin_mode']} and leverage to {params['leverage']}")
-    except ccxt.ExchangeError as e:
-        if "3400114" in str(e):
-            print(f"{datetime.now().strftime('%H:%M:%S')}: Margin mode change failed: Liquidation risk detected. Retrying after 60 seconds...")
-            time.sleep(60)  # Retry after waiting for 60 seconds
-            # Optionally handle retries, or exit gracefully
-        else:
-            raise e
+    change_margin_mode_and_leverage()
