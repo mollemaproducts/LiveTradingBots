@@ -144,15 +144,12 @@ if tracker_info['status'] != "ok_to_trade":
 def change_margin_mode_and_leverage():
     try:
         print(f"{datetime.now().strftime('%H:%M:%S')}: Attempting to set margin mode and leverage...")
-        # Get current margin mode to avoid unnecessary changes
-        current_margin_mode = bitget.fetch_margin_mode(params['symbol'])
-        if current_margin_mode != params['margin_mode']:
-            print(f"{datetime.now().strftime('%H:%M:%S')}: Changing margin mode to {params['margin_mode']}")
-            bitget.set_margin_mode(params['symbol'], margin_mode=params['margin_mode'])
-            bitget.set_leverage(params['symbol'], margin_mode=params['margin_mode'], leverage=params['leverage'])
-            print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully set margin mode to {params['margin_mode']} and leverage to {params['leverage']}")
-        else:
-            print(f"{datetime.now().strftime('%H:%M:%S')}: Margin mode is already set to {params['margin_mode']}")
+
+        # Skip checking current margin mode and set directly
+        print(f"{datetime.now().strftime('%H:%M:%S')}: Changing margin mode to {params['margin_mode']}")
+        bitget.set_margin_mode(params['symbol'], margin_mode=params['margin_mode'])
+        bitget.set_leverage(params['symbol'], margin_mode=params['margin_mode'], leverage=params['leverage'])
+        print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully set margin mode to {params['margin_mode']} and leverage to {params['leverage']}")
 
     except ccxt.ExchangeError as e:
         if "3400114" in str(e):
