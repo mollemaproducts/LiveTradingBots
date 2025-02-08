@@ -1,5 +1,5 @@
 import ccxt
-from colorama import Fore, Back, Style
+#from colorama import Fore, Back, Style
 
 class BybitClient():
 
@@ -16,7 +16,7 @@ class BybitClient():
         usdt_balance = balance['USDT']
 
         # Print balances
-        print(Fore.GREEN + "BALANCE" + Style.RESET_ALL)
+        #print(Fore.GREEN + "BALANCE" + Style.RESET_ALL)
         print(f"Balance BTC : {btc_balance}")
         print(f"Balance USDT: {usdt_balance}")
         print()
