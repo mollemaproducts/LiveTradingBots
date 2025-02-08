@@ -10,8 +10,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from utilities.bybit_client_old import BybitClient
 
-BYBIT_API_KEY = "ovZyOF03R434om5MX6"
-BYBIT_API_SECRET = "Bmn9Wqn1bePh891gbpxfS5vyIW64MrXskftq"
+BYBIT_API_KEY = "your_api_key"
+BYBIT_API_SECRET = "your_api_secret"
 USE_TESTNET = True  # True means your API keys were generated on testnet.bybit.com
 
 # --- CONFIG ---
@@ -139,9 +139,7 @@ if tracker_info['status'] != "ok_to_trade":
         print(f"{datetime.now().strftime('%H:%M:%S')}: <<< status is still {tracker_info['status']}")
         sys.exit()
 
-# --- SET POSITION MODE, MARGIN MODE, LEVERAGE ---
-
-# Cancel all orders and positions before setting margin mode and leverage
+# --- CANCEL ALL OPEN ORDERS AND POSITIONS ---
 def cancel_all_orders_and_positions():
     # Cancel all open orders
     open_orders = bitget.fetch_open_orders(params['symbol'])
@@ -177,16 +175,16 @@ def change_margin_mode_and_leverage():
             print(f"{datetime.now().strftime('%H:%M:%S')}: Changing margin mode to {params['margin_mode']}")
             bitget.set_margin_mode(params['symbol'], margin_mode=params['margin_mode'])
             bitget.set_leverage(params['symbol'], margin_mode=params['margin_mode'], leverage=params['leverage'])
-            print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully set margin mode to {params['margin_mode']} and leverage to {params['leverage']}")
-            return
+            print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully set margin mode to {params['margin_mode']} and leverage to {params['leverage']}.")
+            break
         except ccxt.ExchangeError as e:
-            print(f"{datetime.now().strftime('%H:%M:%S')}: Error during margin mode and leverage change: {e}")
-            if "3400114" in str(e):
-                print(f"{datetime.now().strftime('%H:%M:%S')}: Margin mode change failed due to liquidation risk. Retrying...")
-                time.sleep(60 * (2 ** attempt))  # Exponential backoff
-                cancel_all_orders_and_positions()  # Cancel orders and close positions again
+            print(f"Error changing margin mode and leverage: {str(e)}")
+            if "3400114" in str(e):  # Liquidation risk error
+                wait_time = 60 * (2 ** attempt)  # Exponential backoff
+                print(f"{datetime.now().strftime('%H:%M:%S')}: Retry in {wait_time} seconds.")
+                time.sleep(wait_time)
             else:
-                raise e  # Re-raise other errors
+                raise e
 
-# Execute margin mode and leverage change
+# Execute the margin mode and leverage change
 change_margin_mode_and_leverage()
