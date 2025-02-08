@@ -1,6 +1,8 @@
 import os
 import ccxt
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+
 from utilities.bybit_client import BybitClient
 
 BYBIT_API_KEY = "ovZyOF03R434om5MX6"
