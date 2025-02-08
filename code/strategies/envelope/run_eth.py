@@ -180,20 +180,13 @@ if not open_position:
             print(f"{datetime.now().strftime('%H:%M:%S')}: Waiting for positions to close...")
             time.sleep(5)
 
+    # Cancel any open orders (including trigger orders)
+    open_orders = bitget.fetch_open_orders(params['symbol'])
+    if open_orders:
+        print(f"{datetime.now().strftime('%H:%M:%S')}: Cancelling any open orders.")
+        for order in open_orders:
+            bitget.cancel_order(order['id'], params['symbol'])
+            print(f"{datetime.now().strftime('%H:%M:%S')}: Cancelled order {order['id']}")
+
     # Proceed to change margin mode and leverage
-    change_margin_mode_and_leverage()
-
-if not open_position:
-    positions = bitget.fetch_open_positions(params['symbol'])
-    if positions:
-        # Close positions before changing margin mode
-        print(f"{datetime.now().strftime('%H:%M:%S')}: Closing open positions before changing margin mode")
-        for pos in positions:
-            bitget.flash_close_position(pos['symbol'], side=pos['side'])
-
-        # Wait for positions to close before continuing
-        while len(bitget.fetch_open_positions(params['symbol'])) > 0:
-            print(f"{datetime.now().strftime('%H:%M:%S')}: Waiting for positions to close...")
-            time.sleep(5)
-
     change_margin_mode_and_leverage()
