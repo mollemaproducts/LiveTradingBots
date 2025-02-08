@@ -213,6 +213,21 @@ class BybitClient():
             else:
                 raise err
 
+    # Fetch margin mode using Bybit's API
+    def fetch_margin_mode(self, symbol):
+        # Bybit API endpoint for margin mode
+        endpoint = '/v2/private/position/switch-mode'
+        params = {
+            'symbol': symbol,
+        }
+
+        response = self.client.sapi_get(endpoint, params)
+        # If successful, it should return something like: {'retCode': 0, 'result': {'symbol': 'ETHUSDT', 'position_mode': 'single'}}
+        if response['retCode'] == 0:
+            return response['result']['position_mode']
+        else:
+            raise ccxt.BaseError(f"Error fetching margin mode: {response.get('retMsg')}")
+
     def place_trigger_limit_order(self, symbol: str, side: str, amount: float, trigger_price: float, price: float, reduce: bool = False, print_error: bool = False) -> Optional[Dict[str, Any]]:
         try:
             amount = self.amount_to_precision(symbol, amount)
