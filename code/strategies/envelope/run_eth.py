@@ -142,6 +142,32 @@ if tracker_info['status'] != "ok_to_trade":
 # --- SET POSITION MODE, MARGIN MODE, LEVERAGE ---
 
 
+def cancel_all_orders_and_positions():
+    # Cancel all open orders
+    open_orders = bitget.fetch_open_orders(params['symbol'])
+    if open_orders:
+        print(f"{datetime.now().strftime('%H:%M:%S')}: Cancelling all open orders.")
+        for order in open_orders:
+            bitget.cancel_order(order['id'], params['symbol'])
+            print(f"{datetime.now().strftime('%H:%M:%S')}: Cancelled order {order['id']}")
+
+    # Cancel all trigger orders
+    trigger_orders = bitget.fetch_open_trigger_orders(params['symbol'])
+    if trigger_orders:
+        print(f"{datetime.now().strftime('%H:%M:%S')}: Cancelling all trigger orders.")
+        for order in trigger_orders:
+            bitget.cancel_trigger_order(order['id'], params['symbol'])
+            print(f"{datetime.now().strftime('%H:%M:%S')}: Cancelled trigger order {order['id']}")
+
+    # Close all open positions
+    positions = bitget.fetch_open_positions(params['symbol'])
+    if positions:
+        print(f"{datetime.now().strftime('%H:%M:%S')}: Closing all open positions.")
+        for pos in positions:
+            bitget.flash_close_position(pos['symbol'], side=pos['side'])
+            print(f"{datetime.now().strftime('%H:%M:%S')}: Closing position {pos['side']} for {pos['symbol']}")
+
+# Function to change margin mode
 def change_margin_mode_and_leverage():
     try:
         print(f"{datetime.now().strftime('%H:%M:%S')}: Attempting to set margin mode and leverage...")
@@ -156,53 +182,32 @@ def change_margin_mode_and_leverage():
         if "3400114" in str(e):
             print(f"{datetime.now().strftime('%H:%M:%S')}: Margin mode change failed due to liquidation risk.")
             print(f"Waiting 120 seconds before retrying...")
-            time.sleep(120)  # Increase delay for retry
-            change_margin_mode_and_leverage()
+            time.sleep(120)  # Wait for a longer period
+            cancel_all_orders_and_positions()  # Cancel orders and close positions again
+            change_margin_mode_and_leverage()  # Retry
         else:
             raise e
 
 # Check if no position is open and close any open ones
 if not open_position:
-    positions = bitget.fetch_open_positions(params['symbol'])
-    if positions:
-        print(f"{datetime.now().strftime('%H:%M:%S')}: Closing open positions before changing margin mode.")
-        for pos in positions:
-            bitget.flash_close_position(pos['symbol'], side=pos['side'])
-            print(f"{datetime.now().strftime('%H:%M:%S')}: Closing {pos['side']} position")
+    cancel_all_orders_and_positions()  # Cancel all orders and close positions
 
-        # Wait for positions to close before continuing
-        timeout = 60  # Timeout after 60 seconds
-        start_time = time.time()
-        while len(bitget.fetch_open_positions(params['symbol'])) > 0:
-            elapsed_time = time.time() - start_time
-            if elapsed_time > timeout:
-                print(f"{datetime.now().strftime('%H:%M:%S')}: Timeout reached while waiting for positions to close.")
-                break
-            print(f"{datetime.now().strftime('%H:%M:%S')}: Waiting for positions to close...")
-            time.sleep(5)
-
-    # Cancel any open orders (including trigger orders)
-    open_orders = bitget.fetch_open_orders(params['symbol'])
-    if open_orders:
-        print(f"{datetime.now().strftime('%H:%M:%S')}: Cancelling any open orders.")
-        for order in open_orders:
-            bitget.cancel_order(order['id'], params['symbol'])
-            print(f"{datetime.now().strftime('%H:%M:%S')}: Cancelled order {order['id']}")
-
-    # Change margin mode temporarily to 'cross' and leverage
+    # Change margin mode temporarily to 'cross'
     print(f"{datetime.now().strftime('%H:%M:%S')}: Changing margin mode to 'cross' temporarily")
     bitget.set_margin_mode(params['symbol'], margin_mode='cross')
     bitget.set_leverage(params['symbol'], margin_mode='cross', leverage=params['leverage'])
 
-    # Wait for confirmation of mode change
+    # Wait for the margin mode change to take effect
     print(f"{datetime.now().strftime('%H:%M:%S')}: Waiting 120 seconds after mode change...")
     time.sleep(120)  # Ensure margin mode and leverage take effect
 
-    # After waiting, try changing it back to 'isolated' mode
-    print(f"{datetime.now().strftime('%H:%M:%S')}: Trying to change margin mode back to 'isolated' after 120s wait")
-    bitget.set_margin_mode(params['symbol'], margin_mode='isolated')
-    print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully changed margin mode back to 'isolated'.")
-
-    # Retry leverage change for isolated mode
-    bitget.set_leverage(params['symbol'], margin_mode='isolated', leverage=params['leverage'])
-    print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully set leverage for 'isolated' mode.")
+    # Now, change back to 'isolated'
+    print(f"{datetime.now().strftime('%H:%M:%S')}: Trying to change margin mode back to 'isolated'.")
+    try:
+        bitget.set_margin_mode(params['symbol'], margin_mode='isolated')
+        print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully changed margin mode to 'isolated'.")
+    except ccxt.ExchangeError as e:
+        print(f"{datetime.now().strftime('%H:%M:%S')}: Failed to change margin mode: {e}")
+        time.sleep(60)  # Wait longer and retry after 60 seconds
+        cancel_all_orders_and_positions()  # Ensure no orders and positions
+        change_margin_mode_and_leverage()  # Retry again
