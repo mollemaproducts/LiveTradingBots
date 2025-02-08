@@ -13,13 +13,14 @@ USE_TESTNET = True  # True means your API keys were generated on testnet.bybit.c
 PROFIT_PERCENTAGE = 0.05
 
 # Setup authentication
-authentication = {
+client_options = {
     'apiKey': BYBIT_API_KEY,
-    'secret': BYBIT_API_SECRET
+    'secret': BYBIT_API_SECRET,
+    "options": {"defaultType": "swap", "accountType": "UNIFIED"}  # Ensure UNIFIED is set
 }
 
 # Initialize Bybit client
-bybit_client = BybitClient(authentication, USE_TESTNET)
+bybit_client = BybitClient(client_options, USE_TESTNET)
 
 # Show balance
 bybit_client.get_balance()
