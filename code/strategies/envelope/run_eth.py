@@ -6,7 +6,7 @@ from datetime import datetime
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from utilities.bybbit_vlient_old import BybitClient
+from utilities.bybit_client_old import BybitClient
 
 
 # --- CONFIG ---

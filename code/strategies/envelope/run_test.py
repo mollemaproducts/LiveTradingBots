@@ -1,6 +1,6 @@
 import ccxt
 
-from utilities.bybbit_client import BybitClient
+from utilities.bybit_client import BybitClient
 
 BYBIT_API_KEY = "ovZyOF03R434om5MX6"
 BYBIT_API_SECRET = "Bmn9Wqn1bePh891gbpxfS5vyIW64MrXskftq"
