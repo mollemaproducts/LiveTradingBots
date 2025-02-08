@@ -19,7 +19,7 @@ authentication = {
 }
 
 # Initialize Bybit client
-bybit = BybitClient.init(authentication, USE_TESTNET)
+bybit_client = BybitClient(authentication, USE_TESTNET)
 
 # Show balance
-BybitClient.get_balance(bybit)
+bybit_client.get_balance(bybit)
