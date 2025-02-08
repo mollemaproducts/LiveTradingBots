@@ -221,7 +221,7 @@ class BybitClient():
             'symbol': symbol,
         }
 
-        response = self.client.sapi_get(endpoint, params)
+        response = self.session.sapi_get(endpoint, params)
         # If successful, it should return something like: {'retCode': 0, 'result': {'symbol': 'ETHUSDT', 'position_mode': 'single'}}
         if response['retCode'] == 0:
             return response['result']['position_mode']
