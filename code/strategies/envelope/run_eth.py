@@ -37,10 +37,17 @@ tracker_file = os.path.join(os.getcwd(), 'code/strategies/envelope', f"tracker_{
 
 trigger_price_delta = 0.005  # what I use for a 1h timeframe
 
-# --- SET UP LOGGING ---
+# Define the log file path inside the 'LiveTradingBots' directory
+log_directory = os.path.join(os.getcwd(), 'LiveTradingBots')
+if not os.path.exists(log_directory):
+    os.makedirs(log_directory)  # Create the directory if it doesn't exist
+
+log_file = os.path.join(log_directory, 'bot_eth.log')
+
+# Set up logging to log to a file inside the LiveTradingBots directory
 logging.basicConfig(
-    filename='bot_eth.log',  # Log file named for ETH trading
-    level=logging.INFO,  # Log level set to DEBUG (captures all types of logs)
+    filename=log_file,  # Path to log file
+    level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
