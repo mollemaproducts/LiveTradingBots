@@ -141,7 +141,7 @@ if tracker_info['status'] != "ok_to_trade":
 
 # --- SET POSITION MODE, MARGIN MODE, LEVERAGE ---
 
-
+# Cancel all orders and positions before setting margin mode and leverage
 def cancel_all_orders_and_positions():
     # Cancel all open orders
     open_orders = bitget.fetch_open_orders(params['symbol'])
@@ -167,47 +167,26 @@ def cancel_all_orders_and_positions():
             bitget.flash_close_position(pos['symbol'], side=pos['side'])
             print(f"{datetime.now().strftime('%H:%M:%S')}: Closing position {pos['side']} for {pos['symbol']}")
 
-# Function to change margin mode
+# Retry with exponential backoff if margin mode and leverage change fails
 def change_margin_mode_and_leverage():
-    try:
-        print(f"{datetime.now().strftime('%H:%M:%S')}: Attempting to set margin mode and leverage...")
+    retries = 5
+    for attempt in range(retries):
+        try:
+            print(f"{datetime.now().strftime('%H:%M:%S')}: Attempting to set margin mode and leverage...")
+            # Skip checking current margin mode and set directly
+            print(f"{datetime.now().strftime('%H:%M:%S')}: Changing margin mode to {params['margin_mode']}")
+            bitget.set_margin_mode(params['symbol'], margin_mode=params['margin_mode'])
+            bitget.set_leverage(params['symbol'], margin_mode=params['margin_mode'], leverage=params['leverage'])
+            print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully set margin mode to {params['margin_mode']} and leverage to {params['leverage']}")
+            return
+        except ccxt.ExchangeError as e:
+            print(f"{datetime.now().strftime('%H:%M:%S')}: Error during margin mode and leverage change: {e}")
+            if "3400114" in str(e):
+                print(f"{datetime.now().strftime('%H:%M:%S')}: Margin mode change failed due to liquidation risk. Retrying...")
+                time.sleep(60 * (2 ** attempt))  # Exponential backoff
+                cancel_all_orders_and_positions()  # Cancel orders and close positions again
+            else:
+                raise e  # Re-raise other errors
 
-        # Skip checking current margin mode and set directly
-        print(f"{datetime.now().strftime('%H:%M:%S')}: Changing margin mode to {params['margin_mode']}")
-        bitget.set_margin_mode(params['symbol'], margin_mode=params['margin_mode'])
-        bitget.set_leverage(params['symbol'], margin_mode=params['margin_mode'], leverage=params['leverage'])
-        print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully set margin mode to {params['margin_mode']} and leverage to {params['leverage']}")
-
-    except ccxt.ExchangeError as e:
-        if "3400114" in str(e):
-            print(f"{datetime.now().strftime('%H:%M:%S')}: Margin mode change failed due to liquidation risk.")
-            print(f"Waiting 120 seconds before retrying...")
-            time.sleep(120)  # Wait for a longer period
-            cancel_all_orders_and_positions()  # Cancel orders and close positions again
-            change_margin_mode_and_leverage()  # Retry
-        else:
-            raise e
-
-# Check if no position is open and close any open ones
-if not open_position:
-    cancel_all_orders_and_positions()  # Cancel all orders and close positions
-
-    # Change margin mode temporarily to 'cross'
-    print(f"{datetime.now().strftime('%H:%M:%S')}: Changing margin mode to 'cross' temporarily")
-    bitget.set_margin_mode(params['symbol'], margin_mode='cross')
-    bitget.set_leverage(params['symbol'], margin_mode='cross', leverage=params['leverage'])
-
-    # Wait for the margin mode change to take effect
-    print(f"{datetime.now().strftime('%H:%M:%S')}: Waiting 120 seconds after mode change...")
-    time.sleep(120)  # Ensure margin mode and leverage take effect
-
-    # Now, change back to 'isolated'
-    print(f"{datetime.now().strftime('%H:%M:%S')}: Trying to change margin mode back to 'isolated'.")
-    try:
-        bitget.set_margin_mode(params['symbol'], margin_mode='isolated')
-        print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully changed margin mode to 'isolated'.")
-    except ccxt.ExchangeError as e:
-        print(f"{datetime.now().strftime('%H:%M:%S')}: Failed to change margin mode: {e}")
-        time.sleep(60)  # Wait longer and retry after 60 seconds
-        cancel_all_orders_and_positions()  # Ensure no orders and positions
-        change_margin_mode_and_leverage()  # Retry again
+# Execute margin mode and leverage change
+change_margin_mode_and_leverage()
