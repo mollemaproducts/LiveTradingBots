@@ -139,71 +139,39 @@ open_position = True if len(position) > 0 else False
 if open_position:
     position = position[0]
     logging.info(f"{position['side']} position of {round(position['contracts'] * position['contractSize'], 2)} ~ {round(position['contracts'] * position['contractSize'] * position['markPrice'], 2)} USDT is running")
+else:
+    logging.info("No open position currently.")
 
 # --- OK TO TRADE CHECK ---
 tracker_info = read_tracker_file(tracker_file)
 logging.info(f"Okay to trade check, status was {tracker_info['status']}")
 last_price = data['close'].iloc[-1]
 resume_price = data['average'].iloc[-1]
+logging.debug(f"Last price: {last_price}, Resume price: {resume_price}")
+
 if tracker_info['status'] != "ok_to_trade":
+    logging.info(f"Not ok to trade, status is {tracker_info['status']}")
     if ('long' == tracker_info['last_side'] and last_price >= resume_price) or (
             'short' == tracker_info['last_side'] and last_price <= resume_price):
         update_tracker_file(tracker_file, {"status": "ok_to_trade", "last_side": tracker_info['last_side']})
         logging.info("Status is now ok_to_trade")
     else:
-        logging.info(f"Status is still {tracker_info['status']}")
+        logging.info(f"Conditions not met for resuming trade. Exiting.")
         sys.exit()
 
-# --- CANCEL ALL OPEN ORDERS AND POSITIONS ---
-def cancel_all_orders_and_positions():
-    # Cancel all open orders
-    open_orders = bitget.fetch_open_orders(params['symbol'])
-    if open_orders:
-        logging.info("Cancelling all open orders.")
-        for order in open_orders:
-            bitget.cancel_order(order['id'], params['symbol'])
-            logging.info(f"Cancelled order {order['id']}")
+# --- DECISION TO PLACE A TRADE ---
+if tracker_info['status'] == "ok_to_trade":
+    logging.info(f"Ready to place trade. Last side: {tracker_info['last_side']}, Envelopes: {params['envelopes']}")
+    if params['use_longs'] and last_price > resume_price:
+        logging.info(f"Placing long trade.")
+        # Add your long trade logic here
+    elif params['use_shorts'] and last_price < resume_price:
+        logging.info(f"Placing short trade.")
+        # Add your short trade logic here
+    else:
+        logging.info("Conditions not met for trade placement.")
 
-    # Cancel all trigger orders
-    trigger_orders = bitget.fetch_open_trigger_orders(params['symbol'])
-    if trigger_orders:
-        logging.info("Cancelling all trigger orders.")
-        for order in trigger_orders:
-            bitget.cancel_trigger_order(order['id'], params['symbol'])
-            logging.info(f"Cancelled trigger order {order['id']}")
-
-    # Close all open positions
-    positions = bitget.fetch_open_positions(params['symbol'])
-    if positions:
-        logging.info("Closing all open positions.")
-        for pos in positions:
-            bitget.flash_close_position(pos['symbol'], side=pos['side'])
-            logging.info(f"Closing position {pos['side']} for {pos['symbol']}")
-
-# Retry with exponential backoff if margin mode and leverage change fails
-def change_margin_mode_and_leverage():
-    retries = 5
-    for attempt in range(retries):
-        try:
-            # Check if there are open positions before attempting to change the margin mode
-            positions = bitget.fetch_open_positions(params['symbol'])
-            if positions:
-                logging.warning("Cannot change margin mode while positions are open.")
-                # Optionally, close positions or handle the issue based on your strategy
-                break
-
-            logging.info("Attempting to set margin mode and leverage...")
-            # Skip checking current margin mode and set directly
-            logging.info(f"Changing margin mode to {params['margin_mode']}")
-            bitget.set_margin_mode(params['symbol'], margin_mode=params['margin_mode'])
-            bitget.set_leverage(params['symbol'], margin_mode=params['margin_mode'], leverage=params['leverage'])
-            logging.info(f"Successfully set margin mode to {params['margin_mode']} and leverage to {params['leverage']}.")
-            break
-        except ccxt.ExchangeError as e:
-            logging.error(f"Error changing margin mode and leverage: {str(e)}")
-            if "3400114" in str(e):  # Liquidation risk error
-                wait_time = 60 * (2 ** attempt)  # Exponential backoff
-                logging.info(f"Retry in {wait_time} seconds.")
-                time.sleep(wait_time)
-            else:
-                raise e
+# Additional debug logging for checking all conditions
+logging.debug(f"Tracker Info: {tracker_info}")
+logging.debug(f"Last Price: {last_price}")
+logging.debug(f"Resume Price: {resume_price}")
