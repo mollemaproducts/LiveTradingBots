@@ -8,6 +8,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from utilities.bybit_client_old import BybitClient
 
+BYBIT_API_KEY = "ovZyOF03R434om5MX6"
+BYBIT_API_SECRET = "Bmn9Wqn1bePh891gbpxfS5vyIW64MrXskftq"
+USE_TESTNET = True  # True means your API keys were generated on testnet.bybit.com
 
 # --- CONFIG ---
 params = {
@@ -39,10 +42,6 @@ print(f"\n{datetime.now().strftime('%H:%M:%S')}: >>> starting execution for {par
 #    api_setup = json.load(f)[key_name]
 # bitget = BybitClient(api_setup)
 
-BYBIT_API_KEY = "ovZyOF03R434om5MX6"
-BYBIT_API_SECRET = "Bmn9Wqn1bePh891gbpxfS5vyIW64MrXskftq"
-USE_TESTNET = True  # True means your API keys were generated on testnet.bybit.com
-
 # Setup authentication
 client_options = {
     'apiKey': BYBIT_API_KEY,
@@ -51,7 +50,7 @@ client_options = {
 }
 
 # Initialize Bybit client
-bitget = BybitClient(client_options, use_test_environment=USE_TESTNET)
+bitget = BybitClient(client_options, USE_TESTNET)
 
 
 # --- TRACKER FILE ---
