@@ -7,8 +7,9 @@ from typing import Any, Optional, Dict, List
 class BybitClient():
     def __init__(self, client_options, use_test_environment=True) -> None:
         self.session = ccxt.bybit(client_options)
-        self.session.set_sandbox_mode(True)
-  
+        if use_test_environment:
+            self.session.set_sandbox_mode(True)
+
     def fetch_ticker(self, symbol: str) -> Dict[str, Any]:
         try:
             return self.session.fetch_ticker(symbol)
@@ -17,10 +18,10 @@ class BybitClient():
 
     def fetch_min_amount_tradable(self, symbol: str) -> float:
         try:
-            return self.markets[symbol]['limits']['amount']['min']
+            return self.session.markets[symbol]['limits']['amount']['min']
         except Exception as e:
-            raise Exception(f"Failed to fetch minimum amount tradable: {e}")        
-        
+            raise Exception(f"Failed to fetch minimum amount tradable: {e}")
+
     def amount_to_precision(self, symbol: str, amount: float) -> str:
         try:
             return self.session.amount_to_precision(symbol, amount)
@@ -32,14 +33,6 @@ class BybitClient():
             return self.session.price_to_precision(symbol, price)
         except Exception as e:
             raise Exception(f"Failed to convert price {price} to precision for {symbol}", e)
-
-    # def fetch_balance(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    #     if params is None:
-    #         params = {}
-    #     try:
-    #         return self.session.fetch_balance(params)
-    #     except Exception as e:
-    #         raise Exception(f"Failed to fetch balance: {e}")
 
     def fetch_balance(self):
         return self.session.fetch_balance(params={"accountType": "UNIFIED"})
@@ -83,10 +76,7 @@ class BybitClient():
     def fetch_open_positions(self, symbol: str) -> List[Dict[str, Any]]:
         try:
             positions = self.session.fetch_positions([symbol], params={'productType': 'USDT-FUTURES', 'marginCoin': 'USDT'})
-            real_positions = []
-            for position in positions:
-                if float(position['contracts']) > 0:
-                    real_positions.append(position)
+            real_positions = [position for position in positions if float(position['contracts']) > 0]
             return real_positions
         except Exception as e:
             raise Exception(f"Failed to fetch open positions: {e}")
@@ -110,30 +100,10 @@ class BybitClient():
     def set_leverage(self, symbol: str, margin_mode: str = 'isolated', leverage: int = 1) -> None:
         try:
             if margin_mode == 'isolated':
-                self.session.set_leverage(
-                    leverage,
-                    symbol,
-                    params={
-                        'productType': 'USDT-FUTURES',
-                        'marginCoin': 'USDT',
-                        'holdSide': 'long',
-                    },
-                )
-                self.session.set_leverage(
-                    leverage,
-                    symbol,
-                    params={
-                        'productType': 'USDT-FUTURES',
-                        'marginCoin': 'USDT',
-                        'holdSide': 'short',
-                    },
-                )
+                self.session.set_leverage(leverage, symbol, params={'productType': 'USDT-FUTURES', 'marginCoin': 'USDT', 'holdSide': 'long'})
+                self.session.set_leverage(leverage, symbol, params={'productType': 'USDT-FUTURES', 'marginCoin': 'USDT', 'holdSide': 'short'})
             else:
-                self.session.set_leverage(
-                    leverage,
-                    symbol,
-                    params={'productType': 'USDT-FUTURES', 'marginCoin': 'USDT'},
-                )
+                self.session.set_leverage(leverage, symbol, params={'productType': 'USDT-FUTURES', 'marginCoin': 'USDT'})
         except Exception as e:
             raise Exception(f"Failed to set leverage: {e}")
 
@@ -148,17 +118,12 @@ class BybitClient():
 
         ohlcv_data = []
         while current_timestamp < end_timestamp:
-            request_end_timestamp = min(current_timestamp + (bitget_fetch_limit * timeframe_to_milliseconds[timeframe]),
-                                        end_timestamp)
+            request_end_timestamp = min(current_timestamp + (bitget_fetch_limit * timeframe_to_milliseconds[timeframe]), end_timestamp)
             try:
                 fetched_data = self.session.fetch_ohlcv(
                     symbol,
                     timeframe,
-                    params={
-                        "startTime": str(current_timestamp),
-                        "endTime": str(request_end_timestamp),
-                        "limit": bitget_fetch_limit,
-                    }
+                    params={"startTime": str(current_timestamp), "endTime": str(request_end_timestamp), "limit": bitget_fetch_limit}
                 )
                 ohlcv_data.extend(fetched_data)
             except Exception as e:
@@ -175,24 +140,18 @@ class BybitClient():
 
     def place_market_order(self, symbol: str, side: str, amount: float, reduce: bool = False) -> Dict[str, Any]:
         try:
-            params = {
-                'reduceOnly': reduce,
-            }
+            params = {'reduceOnly': reduce}
             amount = self.amount_to_precision(symbol, amount)
             return self.session.create_order(symbol, 'market', side, amount, params=params)
-
         except Exception as e:
             raise Exception(f"Failed to place market order of {amount} {symbol}: {e}")
 
     def place_limit_order(self, symbol: str, side: str, amount: float, price: float, reduce: bool = False) -> Dict[str, Any]:
         try:
-            params = {
-                'reduceOnly': reduce,
-            }
+            params = {'reduceOnly': reduce}
             amount = self.amount_to_precision(symbol, amount)
             price = self.price_to_precision(symbol, price)
             return self.session.create_order(symbol, 'limit', side, amount, price, params=params)
-
         except Exception as e:
             raise Exception(f"Failed to place limit order of {amount} {symbol} at price {price}: {e}")
 
@@ -200,11 +159,7 @@ class BybitClient():
         try:
             amount = self.amount_to_precision(symbol, amount)
             trigger_price = self.price_to_precision(symbol, trigger_price)
-            params = {
-                'reduceOnly': reduce,
-                'triggerPrice': trigger_price,
-                'delegateType': 'price_fill',
-            }
+            params = {'reduceOnly': reduce, 'triggerPrice': trigger_price, 'delegateType': 'price_fill'}
             return self.session.create_order(symbol, 'market', side, amount, params=params)
         except Exception as err:
             if print_error:
@@ -213,31 +168,12 @@ class BybitClient():
             else:
                 raise err
 
-    # Fetch margin mode using Bybit's API
-    def fetch_margin_mode(self, symbol):
-        # Bybit API endpoint for margin mode
-        endpoint = '/v2/private/position/switch-mode'
-        params = {
-            'symbol': symbol,
-        }
-
-        response = self.session.sapi_get(endpoint, params)
-        # If successful, it should return something like: {'retCode': 0, 'result': {'symbol': 'ETHUSDT', 'position_mode': 'single'}}
-        if response['retCode'] == 0:
-            return response['result']['position_mode']
-        else:
-            raise ccxt.BaseError(f"Error fetching margin mode: {response.get('retMsg')}")
-
     def place_trigger_limit_order(self, symbol: str, side: str, amount: float, trigger_price: float, price: float, reduce: bool = False, print_error: bool = False) -> Optional[Dict[str, Any]]:
         try:
             amount = self.amount_to_precision(symbol, amount)
             trigger_price = self.price_to_precision(symbol, trigger_price)
             price = self.price_to_precision(symbol, price)
-            params = {
-                'reduceOnly': reduce,
-                'triggerPrice': trigger_price,
-                'delegateType': 'price_fill',
-            }
+            params = {'reduceOnly': reduce, 'triggerPrice': trigger_price, 'delegateType': 'price_fill'}
             return self.session.create_order(symbol, 'limit', side, amount, price, params=params)
         except Exception as err:
             if print_error:
@@ -245,3 +181,20 @@ class BybitClient():
                 return None
             else:
                 raise err
+
+    def fetch_margin_mode(self, symbol: str) -> str:
+        try:
+            # Fetch margin mode using Bybit API's endpoint for position settings
+            params = {'symbol': symbol}
+            response = self.session.private_get('/v2/private/position/switch-mode', params)
+
+            # If successful, it should return something like:
+            # {'retCode': 0, 'result': {'symbol': 'ETHUSDT', 'position_mode': 'single'}}
+
+            if response['retCode'] == 0:
+                return response['result']['position_mode']
+            else:
+                raise ccxt.BaseError(f"Error fetching margin mode: {response.get('retMsg')}")
+
+        except Exception as e:
+            raise Exception(f"Failed to fetch margin mode for {symbol}: {e}")
