@@ -10,8 +10,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from utilities.bybit_client_old import BybitClient
 
-BYBIT_API_KEY = "your_api_key_here"
-BYBIT_API_SECRET = "your_api_secret_here"
+BYBIT_API_KEY = "ovZyOF03R434om5MX6"
+BYBIT_API_SECRET = "Bmn9Wqn1bePh891gbpxfS5vyIW64MrXskftq"
 USE_TESTNET = True  # True means your API keys were generated on testnet.bybit.com
 
 # --- CONFIG ---
