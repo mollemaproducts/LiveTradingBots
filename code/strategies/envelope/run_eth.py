@@ -6,7 +6,7 @@ from datetime import datetime
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from utilities.bitget_futures import BitgetFutures
+from utilities.bybbit_vlient_old import BybitClient
 
 
 # --- CONFIG ---
@@ -37,7 +37,7 @@ trigger_price_delta = 0.005  # what I use for a 1h timeframe
 print(f"\n{datetime.now().strftime('%H:%M:%S')}: >>> starting execution for {params['symbol']}")
 with open(key_path, "r") as f:
     api_setup = json.load(f)[key_name]
-bitget = BitgetFutures(api_setup)
+bitget = BybitClient(api_setup)
 
 
 # --- TRACKER FILE ---
