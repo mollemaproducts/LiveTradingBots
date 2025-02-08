@@ -17,7 +17,7 @@ USE_TESTNET = True  # True means your API keys were generated on testnet.bybit.c
 
 # --- CONFIG ---
 params = {
-    'symbol': 'ETH/USDT:USDT',
+    'symbol': 'ADA/USDT:USDT',
     'timeframe': '1h',
     'margin_mode': 'isolated',  # 'cross'
     'balance_fraction': 0.5,
@@ -42,7 +42,7 @@ log_directory = ('/home/ubuntu/LiveTradingBots')
 if not os.path.exists(log_directory):
     os.makedirs(log_directory)  # Create the directory if it doesn't exist
 
-log_file = os.path.join(log_directory, 'bot_eth.log')
+log_file = os.path.join(log_directory, 'bot_ada.log')
 
 # Set up logging to log to a file inside the LiveTradingBots directory
 logging.basicConfig(
