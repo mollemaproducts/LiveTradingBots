@@ -182,19 +182,22 @@ class BybitClient():
             else:
                 raise err
 
-    def fetch_margin_mode(self, symbol: str) -> str:
-        try:
-            # Fetch margin mode using Bybit API's endpoint for position settings
-            params = {'symbol': symbol}
-            response = self.session.private_get('/v2/private/position/switch-mode', params)
+def fetch_margin_mode(self, symbol: str) -> str:
+    try:
+        # Fetch margin mode using Bybit API's endpoint for position settings
+        params = {'symbol': symbol}
+        endpoint = '/v2/private/position/switch-mode'
 
-            # If successful, it should return something like:
-            # {'retCode': 0, 'result': {'symbol': 'ETHUSDT', 'position_mode': 'single'}}
+        # Make the request to the private endpoint using ccxt's request method
+        response = self.session.request('GET', endpoint, params=params)
 
-            if response['retCode'] == 0:
-                return response['result']['position_mode']
-            else:
-                raise ccxt.BaseError(f"Error fetching margin mode: {response.get('retMsg')}")
+        # If successful, it should return something like:
+        # {'retCode': 0, 'result': {'symbol': 'ETHUSDT', 'position_mode': 'single'}}
 
-        except Exception as e:
-            raise Exception(f"Failed to fetch margin mode for {symbol}: {e}")
+        if response['retCode'] == 0:
+            return response['result']['position_mode']
+        else:
+            raise ccxt.BaseError(f"Error fetching margin mode: {response.get('retMsg')}")
+
+    except Exception as e:
+        raise Exception(f"Failed to fetch margin mode for {symbol}: {e}")
