@@ -150,9 +150,9 @@ def change_margin_mode_and_leverage():
     except ccxt.ExchangeError as e:
         if "3400114" in str(e):
             print(f"{datetime.now().strftime('%H:%M:%S')}: Margin mode change failed due to liquidation risk.")
-            print(f"Waiting 60 seconds before retrying...")
-            time.sleep(60)
-            # Retry after waiting 60 seconds
+            print(f"Waiting 120 seconds before retrying...")
+            time.sleep(120)
+            # Retry after waiting 120 seconds
             change_margin_mode_and_leverage()
         else:
             raise e
