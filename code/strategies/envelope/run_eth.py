@@ -170,6 +170,13 @@ def change_margin_mode_and_leverage():
     retries = 5
     for attempt in range(retries):
         try:
+            # Check if there are open positions before attempting to change the margin mode
+            positions = bitget.fetch_open_positions(params['symbol'])
+            if positions:
+                print(f"{datetime.now().strftime('%H:%M:%S')}: Cannot change margin mode while positions are open.")
+                # Optionally, close positions or handle the issue based on your strategy
+                break
+
             print(f"{datetime.now().strftime('%H:%M:%S')}: Attempting to set margin mode and leverage...")
             # Skip checking current margin mode and set directly
             print(f"{datetime.now().strftime('%H:%M:%S')}: Changing margin mode to {params['margin_mode']}")
@@ -185,6 +192,3 @@ def change_margin_mode_and_leverage():
                 time.sleep(wait_time)
             else:
                 raise e
-
-# Execute the margin mode and leverage change
-change_margin_mode_and_leverage()
