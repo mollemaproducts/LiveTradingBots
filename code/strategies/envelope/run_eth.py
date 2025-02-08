@@ -64,6 +64,7 @@ def update_tracker_file(file_path, data):
 orders = bitget.fetch_open_orders(params['symbol'])
 for order in orders:
     bitget.cancel_order(order['id'], params['symbol'])
+
 trigger_orders = bitget.fetch_open_trigger_orders(params['symbol'])
 long_orders_left = 0
 short_orders_left = 0
@@ -73,10 +74,12 @@ for order in trigger_orders:
     elif order['side'] == 'sell' and order['info']['tradeSide'] == 'open':
         short_orders_left += 1
     bitget.cancel_trigger_order(order['id'], params['symbol'])
+
 print(f"{datetime.now().strftime('%H:%M:%S')}: orders cancelled, {long_orders_left} longs left, {short_orders_left} shorts left")
 
 # --- FETCH OHLCV DATA, CALCULATE INDICATORS ---
 data = bitget.fetch_recent_ohlcv(params['symbol'], params['timeframe'], 100).iloc[:-1]
+
 if 'DCM' == params['average_type']:
     ta_obj = ta.volatility.DonchianChannel(data['high'], data['low'], data['close'], window=params['average_period'])
     data['average'] = ta_obj.donchian_channel_mband()
@@ -92,6 +95,7 @@ else:
 for i, e in enumerate(params['envelopes']):
     data[f'band_high_{i + 1}'] = data['average'] / (1 - e)
     data[f'band_low_{i + 1}'] = data['average'] * (1 - e)
+
 print(f"{datetime.now().strftime('%H:%M:%S')}: ohlcv data fetched")
 
 # --- CHECKS IF STOP LOSS WAS TRIGGERED ---
@@ -149,14 +153,15 @@ if not open_position:
             print(f"{datetime.now().strftime('%H:%M:%S')}: Waiting for positions to close...")
             time.sleep(5)
 
+    # Retry mechanism if liquidation risk occurs
     try:
-        # Set margin mode and leverage
         bitget.set_margin_mode(params['symbol'], margin_mode=params['margin_mode'])
         bitget.set_leverage(params['symbol'], margin_mode=params['margin_mode'], leverage=params['leverage'])
         print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully set margin mode to {params['margin_mode']} and leverage to {params['leverage']}")
     except ccxt.ExchangeError as e:
         if "3400114" in str(e):
-            print(f"{datetime.now().strftime('%H:%M:%S')}: Margin mode change failed: Liquidation risk detected.")
-            # Optionally retry after some time or handle the failure gracefully
+            print(f"{datetime.now().strftime('%H:%M:%S')}: Margin mode change failed: Liquidation risk detected. Retrying after 60 seconds...")
+            time.sleep(60)  # Retry after waiting for 60 seconds
+            # Optionally handle retries, or exit gracefully
         else:
             raise e
