@@ -40,7 +40,7 @@ trigger_price_delta = 0.005  # what I use for a 1h timeframe
 # --- SET UP LOGGING ---
 logging.basicConfig(
     filename='bot_eth.log',  # Log file named for ETH trading
-    level=logging.DEBUG,  # Log level set to DEBUG (captures all types of logs)
+    level=logging.INFO,  # Log level set to DEBUG (captures all types of logs)
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
