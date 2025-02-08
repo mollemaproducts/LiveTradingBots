@@ -11,7 +11,7 @@ class BybitClient():
     # Function to fetch and display balances
     def get_balance(self):
         # Fetch BTC and USDT balances
-        balance = self.session.fetch_balance(params={'defaultType': 'future'})
+        balance = self.session.fetch_balance(params={"accountType": "UNIFIED"})
         btc_balance = balance['BTC']
         usdt_balance = balance['USDT']
 
