@@ -4,7 +4,7 @@ import ccxt
 class BybitClient():
 
     # Function to initialize the Bybit client
-    def __init__(self, client_options: Optional[Dict[str, Any]], use_test_environment=True) -> None:
+    def __init__(self, client_options, use_test_environment=True) -> None:
         self.session = ccxt.bybit(client_options)
         self.session.set_sandbox_mode(True)
 
