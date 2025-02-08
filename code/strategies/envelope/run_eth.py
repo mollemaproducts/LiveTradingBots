@@ -4,14 +4,14 @@ import sys
 import json
 import ta
 from datetime import datetime
-import time  # Added for waiting between position checks
+import time
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from utilities.bybit_client_old import BybitClient
 
-BYBIT_API_KEY = "ovZyOF03R434om5MX6"
-BYBIT_API_SECRET = "Bmn9Wqn1bePh891gbpxfS5vyIW64MrXskftq"
+BYBIT_API_KEY = "your_api_key"
+BYBIT_API_SECRET = "your_api_secret"
 USE_TESTNET = True  # True means your API keys were generated on testnet.bybit.com
 
 # --- CONFIG ---
@@ -121,28 +121,6 @@ if open_position:
     position = position[0]
     print(f"{datetime.now().strftime('%H:%M:%S')}: {position['side']} position of {round(position['contracts'] * position['contractSize'], 2)} ~ {round(position['contracts'] * position['contractSize'] * position['markPrice'], 2)} USDT is running")
 
-# --- CHECKS IF CLOSE ALL SHOULD TRIGGER ---
-if 'price_jump_pct' in params and open_position:
-    if position['side'] == 'long':
-        if data['close'].iloc[-1] < float(position['info']['openPriceAvg']) * (1 - params['price_jump_pct']):
-            bitget.flash_close_position(params['symbol'])
-            update_tracker_file(tracker_file, {
-                "last_side": "long",
-                "status": "close_all_triggered",
-                "stop_loss_ids": [],
-            })
-            print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ close all was triggered")
-
-    elif position['side'] == 'short':
-        if data['close'].iloc[-1] > float(position['info']['openPriceAvg']) * (1 + params['price_jump_pct']):
-            bitget.flash_close_position(params['symbol'])
-            update_tracker_file(tracker_file, {
-                "last_side": "short",
-                "status": "close_all_triggered",
-                "stop_loss_ids": [],
-            })
-            print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ close all was triggered")
-
 # --- OK TO TRADE CHECK ---
 tracker_info = read_tracker_file(tracker_file)
 print(f"{datetime.now().strftime('%H:%M:%S')}: okay to trade check, status was {tracker_info['status']}")
@@ -179,7 +157,6 @@ if not open_position:
     except ccxt.ExchangeError as e:
         if "3400114" in str(e):
             print(f"{datetime.now().strftime('%H:%M:%S')}: Margin mode change failed: Liquidation risk detected.")
+            # Optionally retry after some time or handle the failure gracefully
         else:
             raise e
-
-            # The rest of your trading logic continues here...
