@@ -24,3 +24,6 @@ bybit_client = BybitClient(client_options, USE_TESTNET)
 
 # Show balance
 bybit_client.get_balance()
+
+balance = params['balance_fraction'] * params['leverage'] * bitget.fetch_balance()['USDT']['total']
+

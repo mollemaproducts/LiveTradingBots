@@ -35,9 +35,23 @@ trigger_price_delta = 0.005  # what I use for a 1h timeframe
 
 # --- AUTHENTICATION ---
 print(f"\n{datetime.now().strftime('%H:%M:%S')}: >>> starting execution for {params['symbol']}")
-with open(key_path, "r") as f:
-    api_setup = json.load(f)[key_name]
-bitget = BybitClient(api_setup)
+#with open(key_path, "r") as f:
+#    api_setup = json.load(f)[key_name]
+# bitget = BybitClient(api_setup)
+
+BYBIT_API_KEY = "ovZyOF03R434om5MX6"
+BYBIT_API_SECRET = "Bmn9Wqn1bePh891gbpxfS5vyIW64MrXskftq"
+USE_TESTNET = True  # True means your API keys were generated on testnet.bybit.com
+
+# Setup authentication
+client_options = {
+    'apiKey': BYBIT_API_KEY,
+    'secret': BYBIT_API_SECRET,
+    "options": {"defaultType": "swap", "accountType": "UNIFIED"}  # Ensure UNIFIED is set
+}
+
+# Initialize Bybit client
+bitget = BybitClient(client_options, USE_TESTNET)
 
 
 # --- TRACKER FILE ---

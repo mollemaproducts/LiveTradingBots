@@ -17,6 +17,9 @@ class BybitClient():
 
         # Print balances
         #print(Fore.GREEN + "BALANCE" + Style.RESET_ALL)
-        print(f"Balance BTC : {btc_balance}")
+        #print(f"Balance BTC : {btc_balance}")
         print(f"Balance USDT: {usdt_balance}")
         print()
+
+    def fetch_balance(self):
+        return self.session.fetch_balance(params={"accountType": "UNIFIED"})
