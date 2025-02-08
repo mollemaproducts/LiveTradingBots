@@ -47,7 +47,7 @@ log_file = os.path.join(log_directory, 'bot_eth.log')
 # Set up logging to log to a file inside the LiveTradingBots directory
 logging.basicConfig(
     filename=log_file,  # Path to log file
-    level=logging.DEBUG,
+    level=logging.INFP,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
