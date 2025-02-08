@@ -153,23 +153,18 @@ if tracker_info['status'] != "ok_to_trade":
     logging.info(f"Not ok to trade, status is {tracker_info['status']}")
     if ('long' == tracker_info['last_side'] and last_price >= resume_price) or (
             'short' == tracker_info['last_side'] and last_price <= resume_price):
+        if params['use_longs'] and last_price > resume_price:
+            logging.info(f"Placing long trade.")
+            # Add your long trade logic here
+        elif params['use_shorts'] and last_price < resume_price:
+            logging.info(f"Placing short trade.")
+            # Add your short trade logic here
+        else:
+            logging.info("Conditions not met for trade placement.")
         update_tracker_file(tracker_file, {"status": "ok_to_trade", "last_side": tracker_info['last_side']})
-        logging.info("Status is now ok_to_trade")
     else:
         logging.info(f"Conditions not met for resuming trade. Exiting.")
         sys.exit()
-
-# --- DECISION TO PLACE A TRADE ---
-if tracker_info['status'] == "ok_to_trade":
-    logging.info(f"Ready to place trade. Last side: {tracker_info['last_side']}, Envelopes: {params['envelopes']}")
-    if params['use_longs'] and last_price > resume_price:
-        logging.info(f"Placing long trade.")
-        # Add your long trade logic here
-    elif params['use_shorts'] and last_price < resume_price:
-        logging.info(f"Placing short trade.")
-        # Add your short trade logic here
-    else:
-        logging.info("Conditions not met for trade placement.")
 
 # Additional debug logging for checking all conditions
 logging.debug(f"Tracker Info: {tracker_info}")
