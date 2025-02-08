@@ -5,15 +5,9 @@ from typing import Any, Optional, Dict, List
 
 
 class BybitClient():
-    def __init__(self, api_setup: Optional[Dict[str, Any]] = None) -> None:
-
-        if api_setup == None:
-            self.session = ccxt.bitget()
-        else:
-            api_setup.setdefault("options", {"defaultType": "future"})
-            self.session = ccxt.bybit(api_setup)
-
-        self.markets = self.session.load_markets()
+    def __init__(self, client_options, use_test_environment=True) -> None:
+        self.session = ccxt.bybit(client_options)
+        self.session.set_sandbox_mode(True)
   
     def fetch_ticker(self, symbol: str) -> Dict[str, Any]:
         try:
@@ -39,13 +33,16 @@ class BybitClient():
         except Exception as e:
             raise Exception(f"Failed to convert price {price} to precision for {symbol}", e)
 
-    def fetch_balance(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        if params is None:
-            params = {}
-        try:
-            return self.session.fetch_balance(params)
-        except Exception as e:
-            raise Exception(f"Failed to fetch balance: {e}")
+    # def fetch_balance(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    #     if params is None:
+    #         params = {}
+    #     try:
+    #         return self.session.fetch_balance(params)
+    #     except Exception as e:
+    #         raise Exception(f"Failed to fetch balance: {e}")
+
+    def fetch_balance(self):
+        return self.session.fetch_balance(params={"accountType": "UNIFIED"})
 
     def fetch_order(self, id: str, symbol: str) -> Dict[str, Any]:
         try:
