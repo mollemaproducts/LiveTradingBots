@@ -155,11 +155,33 @@ def change_margin_mode_and_leverage():
         if "3400114" in str(e):
             print(f"{datetime.now().strftime('%H:%M:%S')}: Margin mode change failed due to liquidation risk.")
             print(f"Waiting 120 seconds before retrying...")
-            time.sleep(120)
-            # Retry after waiting 120 seconds
+            time.sleep(120)  # Increase delay for retry
             change_margin_mode_and_leverage()
         else:
             raise e
+
+# Check if no position is open and close any open ones
+if not open_position:
+    positions = bitget.fetch_open_positions(params['symbol'])
+    if positions:
+        print(f"{datetime.now().strftime('%H:%M:%S')}: Closing open positions before changing margin mode.")
+        for pos in positions:
+            bitget.flash_close_position(pos['symbol'], side=pos['side'])
+            print(f"{datetime.now().strftime('%H:%M:%S')}: Closing {pos['side']} position")
+
+        # Wait for positions to close before continuing
+        timeout = 60  # Timeout after 60 seconds
+        start_time = time.time()
+        while len(bitget.fetch_open_positions(params['symbol'])) > 0:
+            elapsed_time = time.time() - start_time
+            if elapsed_time > timeout:
+                print(f"{datetime.now().strftime('%H:%M:%S')}: Timeout reached while waiting for positions to close.")
+                break
+            print(f"{datetime.now().strftime('%H:%M:%S')}: Waiting for positions to close...")
+            time.sleep(5)
+
+    # Proceed to change margin mode and leverage
+    change_margin_mode_and_leverage()
 
 if not open_position:
     positions = bitget.fetch_open_positions(params['symbol'])
