@@ -38,7 +38,7 @@ tracker_file = os.path.join(os.getcwd(), 'code/strategies/envelope', f"tracker_{
 trigger_price_delta = 0.005  # what I use for a 1h timeframe
 
 # Define the log file path inside the 'LiveTradingBots' directory
-log_directory = ('~/LiveTradingBots')
+log_directory = ('/home/ubuntu/LiveTradingBots')
 if not os.path.exists(log_directory):
     os.makedirs(log_directory)  # Create the directory if it doesn't exist
 
