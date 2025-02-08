@@ -10,8 +10,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from utilities.bybit_client_old import BybitClient
 
-BYBIT_API_KEY = "ovZyOF03R434om5MX6"
-BYBIT_API_SECRET = "Bmn9Wqn1bePh891gbpxfS5vyIW64MrXskftq"
+BYBIT_API_KEY = "your_api_key_here"
+BYBIT_API_SECRET = "your_api_secret_here"
 USE_TESTNET = True  # True means your API keys were generated on testnet.bybit.com
 
 # --- CONFIG ---
@@ -141,7 +141,6 @@ if tracker_info['status'] != "ok_to_trade":
 
 # --- CANCEL ALL OPEN ORDERS AND POSITIONS ---
 def cancel_all_orders_and_positions():
-    # Cancel all open orders
     open_orders = bitget.fetch_open_orders(params['symbol'])
     if open_orders:
         print(f"{datetime.now().strftime('%H:%M:%S')}: Cancelling all open orders.")
@@ -149,7 +148,6 @@ def cancel_all_orders_and_positions():
             bitget.cancel_order(order['id'], params['symbol'])
             print(f"{datetime.now().strftime('%H:%M:%S')}: Cancelled order {order['id']}")
 
-    # Cancel all trigger orders
     trigger_orders = bitget.fetch_open_trigger_orders(params['symbol'])
     if trigger_orders:
         print(f"{datetime.now().strftime('%H:%M:%S')}: Cancelling all trigger orders.")
@@ -157,7 +155,6 @@ def cancel_all_orders_and_positions():
             bitget.cancel_trigger_order(order['id'], params['symbol'])
             print(f"{datetime.now().strftime('%H:%M:%S')}: Cancelled trigger order {order['id']}")
 
-    # Close all open positions
     positions = bitget.fetch_open_positions(params['symbol'])
     if positions:
         print(f"{datetime.now().strftime('%H:%M:%S')}: Closing all open positions.")
@@ -170,16 +167,12 @@ def change_margin_mode_and_leverage():
     retries = 5
     for attempt in range(retries):
         try:
-            # Check if there are open positions before attempting to change the margin mode
             positions = bitget.fetch_open_positions(params['symbol'])
             if positions:
                 print(f"{datetime.now().strftime('%H:%M:%S')}: Cannot change margin mode while positions are open.")
-                # Optionally, close positions or handle the issue based on your strategy
                 break
 
             print(f"{datetime.now().strftime('%H:%M:%S')}: Attempting to set margin mode and leverage...")
-            # Skip checking current margin mode and set directly
-            print(f"{datetime.now().strftime('%H:%M:%S')}: Changing margin mode to {params['margin_mode']}")
             bitget.set_margin_mode(params['symbol'], margin_mode=params['margin_mode'])
             bitget.set_leverage(params['symbol'], margin_mode=params['margin_mode'], leverage=params['leverage'])
             print(f"{datetime.now().strftime('%H:%M:%S')}: Successfully set margin mode to {params['margin_mode']} and leverage to {params['leverage']}.")
