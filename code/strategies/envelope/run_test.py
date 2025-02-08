@@ -22,4 +22,4 @@ authentication = {
 bybit_client = BybitClient(authentication, USE_TESTNET)
 
 # Show balance
-bybit_client.get_balance(bybit)
+bybit_client.get_balance()
