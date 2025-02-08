@@ -51,7 +51,7 @@ client_options = {
 }
 
 # Initialize Bybit client
-bitget = BybitClient(client_options, USE_TESTNET)
+bitget = BybitClient(client_options, use_test_environment=USE_TESTNET)
 
 
 # --- TRACKER FILE ---
