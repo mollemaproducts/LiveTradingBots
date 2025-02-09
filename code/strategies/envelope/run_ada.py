@@ -162,8 +162,8 @@ if tracker_info['status'] != "ok_to_trade":
 if not open_position:
     time.sleep(SLEEP_TIME)
     bitget.set_margin_mode(params['symbol'], margin_mode=params['margin_mode'])
-    logging.info(f"Attempting to set leverage for {params['symbol']} to {params['leverage']}")
-    bitget.set_leverage(params['symbol'], margin_mode=params['margin_mode'], leverage=params['leverage'])
+    #logging.info(f"Attempting to set leverage for {params['symbol']} to {params['leverage']}")
+    #bitget.set_leverage(params['symbol'], margin_mode=params['margin_mode'], leverage=params['leverage'])
 
 
 # --- IF OPEN POSITION CHANGE TP AND SL ---
