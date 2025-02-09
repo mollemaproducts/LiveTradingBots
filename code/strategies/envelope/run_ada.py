@@ -15,6 +15,7 @@ from utilities.tracker_file import TrackerFile
 # Basic configuration
 sympol = "ADA/USDT:USDT"
 balance_fraction = 0.5
+SLEEP_TIME=10
 
 # Initialize logging
 log_file = os.path.join(config.PATH_LOGGING, 'bot_ada.log')
@@ -54,6 +55,8 @@ trigger_price_delta = 0.005  # what I use for a 1h timeframe
 orders = bitget.fetch_open_orders(params['symbol'])
 for order in orders:
     bitget.cancel_order(order['id'], params['symbol'])
+    time.sleep(SLEEP_TIME)
+
 trigger_orders = bitget.fetch_open_trigger_orders(params['symbol'])
 long_orders_left = 0
 short_orders_left = 0
@@ -106,7 +109,7 @@ if positions:
     for pos in sorted_positions[1:]:
         bitget.flash_close_position(pos['symbol'], side=pos['side'])
         print(f"{datetime.now().strftime('%H:%M:%S')}: double position case, closing the {pos['side']}.")
-
+        time.sleep(SLEEP_TIME)
 
 # --- CHECKS IF A POSITION IS OPEN ---
 position = bitget.fetch_open_positions(params['symbol'])
@@ -156,6 +159,7 @@ if tracker_info['status'] != "ok_to_trade":
 
 # --- SET POSITION MODE, MARGIN MODE, LEVERAGE ---
 if not open_position:
+    time.sleep(SLEEP_TIME)
     bitget.set_margin_mode(params['symbol'], margin_mode=params['margin_mode'])
     bitget.set_leverage(params['symbol'], margin_mode=params['margin_mode'], leverage=params['leverage'])
 
