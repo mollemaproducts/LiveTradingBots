@@ -277,7 +277,7 @@ if long_ok:
                 print(f"{datetime.now().strftime('%H:%M:%S')}: placed sl long trigger market order of {amount}, price {data[f'band_low_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct'])}")
             else:
                 print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ Failed to place stop loss order for {position['side']} position.")
-         else:
+        else:
             print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ long orders not placed for envelope {i+1}, amount {amount} smaller than minimum requirement {min_amount}")
 
 if short_ok:
