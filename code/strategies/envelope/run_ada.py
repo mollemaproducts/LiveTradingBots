@@ -266,8 +266,8 @@ if long_ok:
                 amount=amount,
                 trigger_price=data[f'band_low_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct']),
                 reduce=True,
-                print_error=True,
                 triggerDirection="below",
+                print_error=True,
             )
             info["stop_loss_ids"].append(sl_order['id'])
             print(f"{datetime.now().strftime('%H:%M:%S')}: placed sl long trigger market order of {amount}, price {data[f'band_low_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct'])}")
@@ -308,8 +308,8 @@ if short_ok:
                 amount=amount,
                 trigger_price=data[f'band_high_{i + 1}'].iloc[-1] * (1 + params['stop_loss_pct']),
                 reduce=True,
-                print_error=True,
                 triggerDirection="above",
+                print_error=True,
             )
             info["stop_loss_ids"].append(sl_order['id'])
             print(f"{datetime.now().strftime('%H:%M:%S')}: placed sl short trigger market order of {amount}, price {data[f'band_high_{i + 1}'].iloc[-1] * (1 + params['stop_loss_pct'])}")
