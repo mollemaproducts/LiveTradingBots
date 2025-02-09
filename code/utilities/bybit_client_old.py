@@ -5,10 +5,18 @@ from typing import Any, Optional, Dict, List
 
 
 class BybitClient():
-    def __init__(self, client_options, use_test_environment=True) -> None:
-        self.session = ccxt.bybit(client_options)
-        if use_test_environment:
-            self.session.set_sandbox_mode(True)
+    def __init__(self, path_to_secret_json, secret_profile, use_real_environment=False) -> None:
+        with open(path_to_secret_json, "r") as f:
+            secret = json.load(f)[secret_profile]
+
+        client_config = {
+            "apiKey": secret['apiKey'],
+            "secret": secret['secret'],
+            "options": {"defaultType": "swap", "accountType": "UNIFIED"}  # Ensure UNIFIED is set
+        }
+
+        self.session = ccxt.bybit(client_config)
+        self.session.set_sandbox_mode(not use_real_environment)
 
     def fetch_ticker(self, symbol: str) -> Dict[str, Any]:
         try:
