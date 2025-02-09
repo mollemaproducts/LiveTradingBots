@@ -244,7 +244,6 @@ if long_ok:
         min_amount = bitget.fetch_min_amount_tradable(params['symbol'])
         if amount >= min_amount:
             # entry
-            print("test1")
             bitget.place_trigger_limit_order(
                 symbol=params['symbol'],
                 side='buy',
