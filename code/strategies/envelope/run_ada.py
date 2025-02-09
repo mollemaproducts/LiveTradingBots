@@ -11,7 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from utilities.bybit_client_old import BybitClient
 
 home_dir = os.path.expanduser("~")
-json_credentials_file_path = os.path.join(home_dir, "/LiveTradingBots/secret.json")
+json_credentials_file_path = os.path.join(home_dir, "LiveTradingBots", "secret.json")
 
 with open(json_credentials_file_path, "r") as f:
     config = json.load(f)["bybit-testnet"]
