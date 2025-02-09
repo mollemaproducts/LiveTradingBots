@@ -20,9 +20,12 @@ SLEEP_TIME=5
 # Initialize logging
 log_file = os.path.join(config.PATH_LOGGING, 'bot_ada.log')
 logging.basicConfig(
-    filename=log_file,  # Path to log file
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file),  # Log to file
+        logging.StreamHandler()  # Log to console as well
+    ]
 )
 
 # Initialize tracker file
