@@ -12,8 +12,8 @@ from utilities.bybit_client_old import BybitClient
 
 # Initialize the broker client
 path_to_secret_json = os.path.join(os.path.expanduser("~"), "LiveTradingBots", "secret.json")
-bybit_client = BybitClient(path_to_secret_json, "bybit-testnet")
-bitget = bybit_client
+broker_client = BybitClient(path_to_secret_json, "bybit-testnet")
+bitget = broker_client
 
 
 # --- CONFIG ---
