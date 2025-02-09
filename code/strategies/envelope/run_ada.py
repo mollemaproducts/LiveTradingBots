@@ -270,7 +270,6 @@ if long_ok:
                 amount=amount,
                 trigger_price=data[f'band_low_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct']),
                 reduce=True,
-#                triggerDirection="below",
                 print_error=True,
             )
             info["stop_loss_ids"].append(sl_order['id'])
