@@ -93,9 +93,9 @@ logging.info("OHLCV data fetched")
 
 # --- CHECKS IF STOP LOSS WAS TRIGGERED ---
 closed_orders = bitget.fetch_closed_trigger_orders(params['symbol'])
-tracker_info = TrackerFile.read_tracker_file()
+tracker_info = tracker_file.read_tracker_file()
 if len(closed_orders) > 0 and closed_orders[-1]['id'] in tracker_info['stop_loss_ids']:
-    TrackerFile.update_tracker_file({
+    tracker_file.update_tracker_file({
         "last_side": closed_orders[-1]['info']['posSide'],
         "status": "stop_loss_triggered",
         "stop_loss_ids": [],
@@ -121,7 +121,7 @@ else:
     logging.info("No open position currently.")
 
 # --- OK TO TRADE CHECK ---
-tracker_info = TrackerFile.read_tracker_file()
+tracker_info = tracker_file.read_tracker_file()
 logging.info(f"Okay to trade check, status was {tracker_info['status']}")
 last_price = data['close'].iloc[-1]
 resume_price = data['average'].iloc[-1]
@@ -141,7 +141,7 @@ if tracker_info['status'] != "ok_to_trade":
     logging.info(f"Not ok to trade, status is {tracker_info['status']}")
     if ('long' == tracker_info['last_side'] and last_price >= resume_price) or (
             'short' == tracker_info['last_side'] and last_price <= resume_price):
-        TrackerFile.update_tracker_file({"status": "ok_to_trade", "last_side": tracker_info['last_side']})
+        tracker_file.update_tracker_file({"status": "ok_to_trade", "last_side": tracker_info['last_side']})
     else:
         logging.info(f"Conditions not met for resuming trade. Exiting.")
         sys.exit()
