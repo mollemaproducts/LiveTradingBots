@@ -10,12 +10,12 @@ import logging
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from utilities.bybit_client_old import BybitClient
 
+
+def __init__() -> None:
 # Initialize Bybit client
-path_to_secret_json = os.path.join(os.path.expanduser("~"), "LiveTradingBots", "secret.json")
-bybit_client = BybitClient(path_to_secret_json, "bybit-testnet")
-
-
-bitget = bybit_client
+    path_to_secret_json = os.path.join(os.path.expanduser("~"), "LiveTradingBots", "secret.json")
+    bybit_client = BybitClient(path_to_secret_json, "bybit-testnet")
+    bitget = bybit_client
 
 
 # --- CONFIG ---
