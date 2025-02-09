@@ -1,6 +1,7 @@
 import ccxt
 import os
 import sys
+import json
 import ta
 from datetime import datetime
 import time
