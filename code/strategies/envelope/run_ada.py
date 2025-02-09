@@ -57,6 +57,7 @@ for order in orders:
     bitget.cancel_order(order['id'], params['symbol'])
     time.sleep(SLEEP_TIME)
 
+time.sleep(2)
 trigger_orders = bitget.fetch_open_trigger_orders(params['symbol'])
 long_orders_left = 0
 short_orders_left = 0
@@ -67,7 +68,7 @@ for order in trigger_orders:
         short_orders_left += 1
     bitget.cancel_trigger_order(order['id'], params['symbol'])
 print(f"{datetime.now().strftime('%H:%M:%S')}: orders cancelled, {long_orders_left} longs left, {short_orders_left} shorts left")
-
+time.sleep(SLEEP_TIME)
 
 # --- FETCH OHLCV DATA, CALCULATE INDICATORS ---
 data = bitget.fetch_recent_ohlcv(params['symbol'], params['timeframe'], 100).iloc[:-1]
@@ -140,7 +141,7 @@ if 'price_jump_pct' in params and open_position:
                 "stop_loss_ids": [],
             })
             print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ close all was triggered")
-
+    time.sleep(SLEEP_TIME)
 
 # --- OK TO TRADE CHECK ---
 tracker_info = tracker_file.read_tracker_file()
