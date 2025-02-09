@@ -252,9 +252,6 @@ if long_ok:
                 trigger_price=entry_trigger_price,
                 price=entry_limit_price,
                 print_error=True,
-                params={
-                    'triggerDirection': 'below'
-                },
             )
             print(f"{datetime.now().strftime('%H:%M:%S')}: placed open long trigger limit order of {amount}, trigger price {entry_trigger_price}, price {entry_limit_price}")
             # exit
@@ -265,9 +262,6 @@ if long_ok:
                 trigger_price=data['average'].iloc[-1],
                 reduce=True,
                 print_error=True,
-                params={
-                    'triggerDirection': 'below'
-                },
             )
             print(f"{datetime.now().strftime('%H:%M:%S')}: placed exit long trigger market order of {amount}, price {data['average'].iloc[-1]}")
             # sl
@@ -278,9 +272,6 @@ if long_ok:
                 trigger_price=data[f'band_low_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct']),
                 reduce=True,
                 print_error=True,
-                params={
-                    'triggerDirection': 'below'
-                },
             )
             if sl_order:
                 info["stop_loss_ids"].append(sl_order['id'])
@@ -305,9 +296,6 @@ if short_ok:
                 trigger_price= entry_trigger_price,
                 price=entry_limit_price,
                 print_error=True,
-                params={
-                    'triggerDirection': 'above'
-                },
             )
             print(f"{datetime.now().strftime('%H:%M:%S')}: placed open short trigger limit order of {amount}, trigger price {entry_trigger_price}, price {entry_limit_price}")
             # exit
@@ -318,9 +306,6 @@ if short_ok:
                 trigger_price=data['average'].iloc[-1],
                 reduce=True,
                 print_error=True,
-                params={
-                    'triggerDirection': 'below'
-                },
             )
             print(f"{datetime.now().strftime('%H:%M:%S')}: placed exit short trigger market order of {amount}, price {data['average'].iloc[-1]}")
             # sl
@@ -331,9 +316,6 @@ if short_ok:
                 trigger_price=data[f'band_high_{i + 1}'].iloc[-1] * (1 + params['stop_loss_pct']),
                 reduce=True,
                 print_error=True,
-                params={
-                    'triggerDirection': 'below'
-                },
             )
             info["stop_loss_ids"].append(sl_order['id'])
             print(f"{datetime.now().strftime('%H:%M:%S')}: placed sl short trigger market order of {amount}, price {data[f'band_high_{i + 1}'].iloc[-1] * (1 + params['stop_loss_pct'])}")

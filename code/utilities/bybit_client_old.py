@@ -168,7 +168,9 @@ class BybitClient():
         try:
             amount = self.amount_to_precision(symbol, amount)
             trigger_price = self.price_to_precision(symbol, trigger_price)
-            params = {'reduceOnly': reduce, 'triggerPrice': trigger_price, 'delegateType': 'price_fill'}
+            trigger_direction = self.get_trigger_direction(side)
+            params = {'reduceOnly': reduce, 'triggerPrice': trigger_price, 'delegateType': 'price_fill',
+                      'triggerDirection': trigger_direction}
             return self.session.create_order(symbol, 'market', side, amount, params=params)
         except Exception as err:
             if print_error:
@@ -177,12 +179,21 @@ class BybitClient():
             else:
                 raise err
 
+    def get_trigger_direction(self, side):
+        if side == 'buy':
+            return "below"
+        else:
+            return "above"
+
+
     def place_trigger_limit_order(self, symbol: str, side: str, amount: float, trigger_price: float, price: float, reduce: bool = False, print_error: bool = False) -> Optional[Dict[str, Any]]:
         try:
             amount = self.amount_to_precision(symbol, amount)
             trigger_price = self.price_to_precision(symbol, trigger_price)
             price = self.price_to_precision(symbol, price)
-            params = {'reduceOnly': reduce, 'triggerPrice': trigger_price, 'delegateType': 'price_fill'}
+            trigger_direction = self.get_trigger_direction(side)
+            params = {'reduceOnly': reduce, 'triggerPrice': trigger_price, 'delegateType': 'price_fill',
+                      'triggerDirection': trigger_direction}
             return self.session.create_order(symbol, 'limit', side, amount, price, params=params)
         except Exception as err:
             if print_error:
