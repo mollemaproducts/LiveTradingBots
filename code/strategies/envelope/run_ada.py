@@ -171,11 +171,14 @@ if open_position:
     if position['side'] == 'long':
         close_side = 'sell'
         stop_loss_price = float(position['info']['openPriceAvg']) * (1 - params['stop_loss_pct'])
+        trigger_direction = "below"
     elif position['side'] == 'short':
         close_side = 'buy'
         stop_loss_price = float(position['info']['openPriceAvg']) * (1 + params['stop_loss_pct'])
+        trigger_direction = "above"
 
     amount = position['contracts'] * position['contractSize']
+
     # exit
     bitget.place_trigger_market_order(
         symbol=params['symbol'],
@@ -183,6 +186,7 @@ if open_position:
         amount=amount,
         trigger_price=data['average'].iloc[-1],
         reduce=True,
+        triggerDirection=trigger_direction,
         print_error=True,
     )
     # sl
@@ -266,7 +270,6 @@ if long_ok:
                 amount=amount,
                 trigger_price=data[f'band_low_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct']),
                 reduce=True,
-                triggerDirection="below",
                 print_error=True,
             )
             info["stop_loss_ids"].append(sl_order['id'])
@@ -308,7 +311,6 @@ if short_ok:
                 amount=amount,
                 trigger_price=data[f'band_high_{i + 1}'].iloc[-1] * (1 + params['stop_loss_pct']),
                 reduce=True,
-                triggerDirection="above",
                 print_error=True,
             )
             info["stop_loss_ids"].append(sl_order['id'])
