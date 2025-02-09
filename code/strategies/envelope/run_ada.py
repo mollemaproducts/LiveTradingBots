@@ -251,7 +251,6 @@ if long_ok:
                 amount=amount,
                 trigger_price=entry_trigger_price,
                 price=entry_limit_price,
-                triggerDirection="below",
                 print_error=True,
             )
             print(f"{datetime.now().strftime('%H:%M:%S')}: placed open long trigger limit order of {amount}, trigger price {entry_trigger_price}, price {entry_limit_price}")
