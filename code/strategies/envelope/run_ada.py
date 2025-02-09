@@ -140,7 +140,7 @@ if 'price_jump_pct' in params and open_position:
 
 
 # --- OK TO TRADE CHECK ---
-tracker_info = tracker_file.read_tracker_file(tracker_file)
+tracker_info = tracker_file.read_tracker_file()
 print(f"{datetime.now().strftime('%H:%M:%S')}: okay to trade check, status was {tracker_info['status']}")
 last_price = data['close'].iloc[-1]
 resume_price = data['average'].iloc[-1]
