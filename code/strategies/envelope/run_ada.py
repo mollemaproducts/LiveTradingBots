@@ -170,6 +170,9 @@ if not open_position:
 if open_position:
     if position['side'] == 'long':
         close_side = 'sell'
+
+        print(position['info'])
+
         stop_loss_price = float(position['info']['openPriceAvg']) * (1 - params['stop_loss_pct'])
         trigger_direction = "below"
     elif position['side'] == 'short':
