@@ -318,9 +318,14 @@ if short_ok:
                 reduce=True,
                 print_error=True,
             )
-            info["stop_loss_ids"].append(sl_order['id'])
-            print(f"{datetime.now().strftime('%H:%M:%S')}: placed sl short trigger market order of {amount}, price {data[f'band_high_{i + 1}'].iloc[-1] * (1 + params['stop_loss_pct'])}")
-        else:
+            if sl_order:
+                info["stop_loss_ids"].append(sl_order['id'])
+                print(f"{datetime.now().strftime('%H:%M:%S')}: placed sl short trigger market order of {amount}, price {data[f'band_high_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct'])}")
+            else:
+                if isinstance(position, list) and len(position) > 0:
+                position = position[0]  # Ensure we reference the first position
+                print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ Failed to place stop loss order for {position.get('side', 'unknown')} position.")
+         else:
             print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ short orders not placed for envelope {i+1}, amount {amount} smaller than minimum requirement {min_amount}")
 
 tracker_file.update_tracker_file(info)
