@@ -61,6 +61,7 @@ time.sleep(2)
 trigger_orders = bitget.fetch_open_trigger_orders(params['symbol'])
 long_orders_left = 0
 short_orders_left = 0
+print(order['info'])
 for order in trigger_orders:
     if order['side'] == 'buy' and order['info']['tradeSide'] == 'open':
         long_orders_left += 1
