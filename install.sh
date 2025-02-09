@@ -4,6 +4,9 @@ sudo apt-get update
 echo Installing pip
 sudo apt install python3-pip -y
 
+echo Making log dirs
+mkdir LiveTradingBots/logs
+
 echo Installing virtual environment and packages
 cd LiveTradingBots/code
 sudo apt-get install python3-venv

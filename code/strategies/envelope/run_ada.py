@@ -10,9 +10,21 @@ import logging
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from utilities.bybit_client_old import BybitClient
 
+# Init project paths
+path_root_project = os.path.join(os.path.expanduser("~"), "LiveTradingBots")
+path_logging = os.path.join(path_root_project, "logs")
+
+# Initialize logging
+log_file = os.path.join(path_logging, 'bot_ada.log')
+logging.basicConfig(
+    filename=log_file,  # Path to log file
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
 # Initialize the broker client
-path_to_secret_json = os.path.join(os.path.expanduser("~"), "LiveTradingBots", "secret.json")
-broker_client = BybitClient(path_to_secret_json, "bybit-testnet")
+path_secret_json = os.path.join(path_root_project, "secret.json")
+broker_client = BybitClient(path_secret_json, "bybit-testnet")
 bitget = broker_client
 
 
@@ -31,28 +43,12 @@ params = {
     'use_shorts': True,  # set to False if you want to use only longs
 }
 
-key_path = 'LiveTradingBots/secret.json'
-key_name = 'bybit_client'
-
-tracker_file = os.path.join(os.getcwd(), 'code/strategies/envelope', f"tracker_{params['symbol'].replace('/', '-').replace(':', '-')}.json")
-
 trigger_price_delta = 0.005  # what I use for a 1h timeframe
 
-# Define the log file path inside the 'LiveTradingBots' directory
-log_directory = ('/home/ubuntu/LiveTradingBots')
-if not os.path.exists(log_directory):
-    os.makedirs(log_directory)  # Create the directory if it doesn't exist
 
-log_file = os.path.join(log_directory, 'bot_ada.log')
-
-# Set up logging to log to a file inside the LiveTradingBots directory
-logging.basicConfig(
-    filename=log_file,  # Path to log file
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 
 # --- TRACKER FILE ---
+tracker_file = os.path.join(os.getcwd(), 'code/strategies/envelope', f"tracker_{params['symbol'].replace('/', '-').replace(':', '-')}.json")
 if not os.path.exists(tracker_file):
     with open(tracker_file, 'w') as file:
         json.dump({"status": "ok_to_trade", "last_side": None, "stop_loss_ids": []}, file)
