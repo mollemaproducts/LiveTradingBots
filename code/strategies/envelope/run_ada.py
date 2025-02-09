@@ -9,10 +9,16 @@ import logging
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from utilities.bybit_client_old import BybitClient
+from utilities.tracker_file import TrackerFile
+
+# Basic configuration
+sympol = "ADA/USDT:USDT"
+balance_fraction = 0.5
 
 # Init project paths
 path_root_project = os.path.join(os.path.expanduser("~"), "LiveTradingBots")
 path_logging = os.path.join(path_root_project, "logs")
+path_tracker_file = os.path.join(path_root_project, 'code/strategies/envelope')
 
 # Initialize logging
 log_file = os.path.join(path_logging, 'bot_ada.log')
@@ -22,18 +28,20 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+# Initialize tracker file
+tracker_file = TrackerFile(path_tracker_file, sympol)
+
 # Initialize the broker client
 path_secret_json = os.path.join(path_root_project, "secret.json")
 broker_client = BybitClient(path_secret_json, "bybit-testnet")
 bitget = broker_client
 
-
-# --- CONFIG ---
+# Configuration
 params = {
-    'symbol': 'ADA/USDT:USDT',
+    'symbol': sympol,
     'timeframe': '1h',
     'margin_mode': 'isolated',  # 'cross'
-    'balance_fraction': 0.5,
+    'balance_fraction': balance_fraction,
     'leverage': 1,
     'average_type': 'DCM',  # 'SMA', 'EMA', 'WMA', 'DCM'
     'average_period': 5,
@@ -44,22 +52,6 @@ params = {
 }
 
 trigger_price_delta = 0.005  # what I use for a 1h timeframe
-
-
-
-# --- TRACKER FILE ---
-tracker_file = os.path.join(os.getcwd(), 'code/strategies/envelope', f"tracker_{params['symbol'].replace('/', '-').replace(':', '-')}.json")
-if not os.path.exists(tracker_file):
-    with open(tracker_file, 'w') as file:
-        json.dump({"status": "ok_to_trade", "last_side": None, "stop_loss_ids": []}, file)
-
-def read_tracker_file(file_path):
-    with open(file_path, 'r') as file:
-        return json.load(file)
-
-def update_tracker_file(file_path, data):
-    with open(file_path, 'w') as file:
-        json.dump(data, file)
 
 # --- CANCEL OPEN ORDERS ---
 orders = bitget.fetch_open_orders(params['symbol'])
@@ -101,9 +93,9 @@ logging.info("OHLCV data fetched")
 
 # --- CHECKS IF STOP LOSS WAS TRIGGERED ---
 closed_orders = bitget.fetch_closed_trigger_orders(params['symbol'])
-tracker_info = read_tracker_file(tracker_file)
+tracker_info = TrackerFile.read_tracker_file()
 if len(closed_orders) > 0 and closed_orders[-1]['id'] in tracker_info['stop_loss_ids']:
-    update_tracker_file(tracker_file, {
+    TrackerFile.update_tracker_file({
         "last_side": closed_orders[-1]['info']['posSide'],
         "status": "stop_loss_triggered",
         "stop_loss_ids": [],
@@ -129,7 +121,7 @@ else:
     logging.info("No open position currently.")
 
 # --- OK TO TRADE CHECK ---
-tracker_info = read_tracker_file(tracker_file)
+tracker_info = TrackerFile.read_tracker_file()
 logging.info(f"Okay to trade check, status was {tracker_info['status']}")
 last_price = data['close'].iloc[-1]
 resume_price = data['average'].iloc[-1]
@@ -149,7 +141,7 @@ if tracker_info['status'] != "ok_to_trade":
     logging.info(f"Not ok to trade, status is {tracker_info['status']}")
     if ('long' == tracker_info['last_side'] and last_price >= resume_price) or (
             'short' == tracker_info['last_side'] and last_price <= resume_price):
-        update_tracker_file(tracker_file, {"status": "ok_to_trade", "last_side": tracker_info['last_side']})
+        TrackerFile.update_tracker_file({"status": "ok_to_trade", "last_side": tracker_info['last_side']})
     else:
         logging.info(f"Conditions not met for resuming trade. Exiting.")
         sys.exit()
