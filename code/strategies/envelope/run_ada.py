@@ -244,12 +244,14 @@ if long_ok:
         min_amount = bitget.fetch_min_amount_tradable(params['symbol'])
         if amount >= min_amount:
             # entry
+            print("test1")
             bitget.place_trigger_limit_order(
                 symbol=params['symbol'],
                 side='buy',
                 amount=amount,
                 trigger_price=entry_trigger_price,
                 price=entry_limit_price,
+                triggerDirection="below",
                 print_error=True,
             )
             print(f"{datetime.now().strftime('%H:%M:%S')}: placed open long trigger limit order of {amount}, trigger price {entry_trigger_price}, price {entry_limit_price}")
@@ -260,6 +262,7 @@ if long_ok:
                 amount=amount,
                 trigger_price=data['average'].iloc[-1],
                 reduce=True,
+                triggerDirection="below",
                 print_error=True,
             )
             print(f"{datetime.now().strftime('%H:%M:%S')}: placed exit long trigger market order of {amount}, price {data['average'].iloc[-1]}")
@@ -270,6 +273,7 @@ if long_ok:
                 amount=amount,
                 trigger_price=data[f'band_low_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct']),
                 reduce=True,
+                triggerDirection="below",
                 print_error=True,
             )
             if sl_order:
@@ -294,6 +298,7 @@ if short_ok:
                 amount=amount,
                 trigger_price= entry_trigger_price,
                 price=entry_limit_price,
+                triggerDirection="above",
                 print_error=True,
             )
             print(f"{datetime.now().strftime('%H:%M:%S')}: placed open short trigger limit order of {amount}, trigger price {entry_trigger_price}, price {entry_limit_price}")
@@ -304,6 +309,7 @@ if short_ok:
                 amount=amount,
                 trigger_price=data['average'].iloc[-1],
                 reduce=True,
+                triggerDirection="above",
                 print_error=True,
             )
             print(f"{datetime.now().strftime('%H:%M:%S')}: placed exit short trigger market order of {amount}, price {data['average'].iloc[-1]}")
