@@ -325,7 +325,7 @@ if short_ok:
                 if isinstance(position, list) and len(position) > 0:
                     position = position[0]  # Ensure we reference the first position
                     print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ Failed to place stop loss order for {position.get('side', 'unknown')} position.")
-         else:
+        else:
             print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ short orders not placed for envelope {i+1}, amount {amount} smaller than minimum requirement {min_amount}")
 
 tracker_file.update_tracker_file(info)
