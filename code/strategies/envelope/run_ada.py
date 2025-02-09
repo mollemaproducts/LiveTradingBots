@@ -14,11 +14,11 @@ home_dir = os.path.expanduser("~")
 json_credentials_file_path = os.path.join(home_dir, "LiveTradingBots", "secret.json")
 
 with open(json_credentials_file_path, "r") as f:
-    config = json.load(f)["bybit-testnet"]
+    secret = json.load(f)["bybit-testnet"]
 
 client_config = {
-    "apiKey": api_key['apiKey'],
-    "secret": api_key['secret'],
+    "apiKey": secret['apiKey'],
+    "secret": secret['secret'],
     "options": {"defaultType": "swap", "accountType": "UNIFIED"}  # Ensure UNIFIED is set
 }
 
