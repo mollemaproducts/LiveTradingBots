@@ -8,12 +8,24 @@ import time
 import logging
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-
 from utilities.bybit_client_old import BybitClient
 
-BYBIT_API_KEY = "ovZyOF03R434om5MX6"
-BYBIT_API_SECRET = "Bmn9Wqn1bePh891gbpxfS5vyIW64MrXskftq"
-USE_TESTNET = True  # True means your API keys were generated on testnet.bybit.com
+home_dir = os.path.expanduser("~")
+json_credentials_file_path = os.path.join(home_dir, "secret.json")
+
+with open(json_credentials_file_path, "r") as f:
+    config = json.load(f)["bybit-testnet"]
+
+client_config = {
+    "apiKey": api_key['apiKey'],
+    "secret": api_key['secret'],
+    "options": {"defaultType": "swap", "accountType": "UNIFIED"}  # Ensure UNIFIED is set
+}
+
+# Initialize Bybit client
+bybit_client = BybitClient(client_config, True)
+bitget = bybit_client
+
 
 # --- CONFIG ---
 params = {
@@ -50,17 +62,6 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
-
-# --- AUTHENTICATION ---
-logging.info(f"Starting execution for {params['symbol']}")
-client_options = {
-    'apiKey': BYBIT_API_KEY,
-    'secret': BYBIT_API_SECRET,
-    "options": {"defaultType": "swap", "accountType": "UNIFIED"}  # Ensure UNIFIED is set
-}
-
-# Initialize Bybit client
-bitget = BybitClient(client_options, USE_TESTNET)
 
 # --- TRACKER FILE ---
 if not os.path.exists(tracker_file):
