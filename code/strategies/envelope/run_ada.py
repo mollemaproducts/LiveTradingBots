@@ -10,20 +10,12 @@ import logging
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from utilities.bybit_client_old import BybitClient
 
-home_dir = os.path.expanduser("~")
-json_credentials_file_path = os.path.join(home_dir, "LiveTradingBots", "secret.json")
-
-with open(json_credentials_file_path, "r") as f:
-    secret = json.load(f)["bybit-testnet"]
-
-client_config = {
-    "apiKey": secret['apiKey'],
-    "secret": secret['secret'],
-    "options": {"defaultType": "swap", "accountType": "UNIFIED"}  # Ensure UNIFIED is set
-}
-
 # Initialize Bybit client
-bybit_client = BybitClient(client_config, True)
+path_to_secret_json = os.path.join(os.path.expanduser("~"), "LiveTradingBots", "secret.json")
+use_test_environment = True
+bybit_client = BybitClient(path_to_secret_json, "bybit-testnet", use_test_environment)
+
+
 bitget = bybit_client
 
 
