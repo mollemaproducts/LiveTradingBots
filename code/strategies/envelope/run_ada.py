@@ -195,7 +195,6 @@ if open_position:
         amount=amount,
         trigger_price=stop_loss_price,
         reduce=True,
-        triggerDirection=trigger_direction,
         print_error=True,
     )
     info = {
