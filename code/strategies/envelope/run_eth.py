@@ -13,9 +13,9 @@ from utilities.bybit_client_old import BybitClient
 from utilities.tracker_file import TrackerFile
 
 # Basic configuration
-sympol = "ADA/USDT:USDT"
-balance_fraction = 0.5
-SLEEP_TIME=5
+sympol = "ETH/USDT:USDT"
+balance_fraction = 0.3
+SLEEP_TIME=2
 
 # Initialize logging
 log_file = os.path.join(config.PATH_LOGGING, 'bot_ada.log')
