@@ -9,8 +9,8 @@ import config
 import logging
 
 sys.path.append(config.PATH_UTILITIES)
-from utilities.bybit_client_old import BybitClient
-from utilities.tracker_file import TrackerFile
+from bybit_client_old import BybitClient
+from tracker_file import TrackerFile
 
 # Basic configuration
 sympol = "ETH/USDT:USDT"
