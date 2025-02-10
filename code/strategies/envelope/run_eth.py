@@ -8,7 +8,7 @@ import time
 import config
 import logging
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 from utilities.bybit_client_old import BybitClient
 from utilities.tracker_file import TrackerFile
 
