@@ -66,13 +66,13 @@ trigger_orders = bitget.fetch_open_trigger_orders(params['symbol'])
 long_orders_left = 0
 short_orders_left = 0
 for order in trigger_orders:
-    #print(order['info'])
+    #logging.info(order['info'])
     if order['side'] == 'buy' and order['info']['tradeSide'] == 'open':
         long_orders_left += 1
     elif order['side'] == 'sell' and order['info']['tradeSide'] == 'open':
         short_orders_left += 1
     bitget.cancel_trigger_order(order['id'], params['symbol'])
-print(f"{datetime.now().strftime('%H:%M:%S')}: orders cancelled, {long_orders_left} longs left, {short_orders_left} shorts left")
+logging.info(f"{datetime.now().strftime('%H:%M:%S')}: orders cancelled, {long_orders_left} longs left, {short_orders_left} shorts left")
 time.sleep(SLEEP_TIME)
 
 # --- FETCH OHLCV DATA, CALCULATE INDICATORS ---
@@ -92,7 +92,7 @@ else:
 for i, e in enumerate(params['envelopes']):
     data[f'band_high_{i + 1}'] = data['average'] / (1 - e)
     data[f'band_low_{i + 1}'] = data['average'] * (1 - e)
-print(f"{datetime.now().strftime('%H:%M:%S')}: ohlcv data fetched")
+logging.info(f"{datetime.now().strftime('%H:%M:%S')}: ohlcv data fetched")
 
 
 # --- CHECKS IF STOP LOSS WAS TRIGGERED ---
@@ -104,7 +104,7 @@ if len(closed_orders) > 0 and closed_orders[-1]['id'] in tracker_info['stop_loss
         "status": "stop_loss_triggered",
         "stop_loss_ids": [],
     })
-    print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ stop loss was triggered")
+    logging.info(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ stop loss was triggered")
 
 
 # --- CHECK FOR MULTIPLE OPEN POSITIONS AND CLOSE THE EARLIEST ONE ---
@@ -114,7 +114,7 @@ if positions:
     latest_position = sorted_positions[0]
     for pos in sorted_positions[1:]:
         bitget.flash_close_position(pos['symbol'], side=pos['side'])
-        print(f"{datetime.now().strftime('%H:%M:%S')}: double position case, closing the {pos['side']}.")
+        logging.info(f"{datetime.now().strftime('%H:%M:%S')}: double position case, closing the {pos['side']}.")
         time.sleep(SLEEP_TIME)
 
 # --- CHECKS IF A POSITION IS OPEN ---
@@ -122,7 +122,7 @@ position = bitget.fetch_open_positions(params['symbol'])
 open_position = True if len(position) > 0 else False
 if open_position:
     position = position[0]
-    print(f"{datetime.now().strftime('%H:%M:%S')}: {position['side']} position of {round(position['contracts'] * position['contractSize'],2)} ~ {round(position['contracts'] * position['contractSize'] * position['markPrice'],2)} USDT is running")
+    logging.info(f"{datetime.now().strftime('%H:%M:%S')}: {position['side']} position of {round(position['contracts'] * position['contractSize'],2)} ~ {round(position['contracts'] * position['contractSize'] * position['markPrice'],2)} USDT is running")
 
 
 # --- CHECKS IF CLOSE ALL SHOULD TRIGGER ---
@@ -135,7 +135,7 @@ if 'price_jump_pct' in params and open_position:
                 "status": "close_all_triggered",
                 "stop_loss_ids": [],
             })
-            print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ close all was triggered")
+            logging.info(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ close all was triggered")
 
     elif position['side'] == 'short':
         if data['close'].iloc[-1] > float(position['info']['avgPrice']) * (1 + params['price_jump_pct']):
@@ -145,21 +145,21 @@ if 'price_jump_pct' in params and open_position:
                 "status": "close_all_triggered",
                 "stop_loss_ids": [],
             })
-            print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ close all was triggered")
+            logging.info(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ close all was triggered")
     time.sleep(SLEEP_TIME)
 
 # --- OK TO TRADE CHECK ---
 tracker_info = tracker_file.read_tracker_file()
-print(f"{datetime.now().strftime('%H:%M:%S')}: okay to trade check, status was {tracker_info['status']}")
+logging.info(f"{datetime.now().strftime('%H:%M:%S')}: okay to trade check, status was {tracker_info['status']}")
 last_price = data['close'].iloc[-1]
 resume_price = data['average'].iloc[-1]
 if tracker_info['status'] != "ok_to_trade":
     if ('long' == tracker_info['last_side'] and last_price >= resume_price) or (
             'short' == tracker_info['last_side'] and last_price <= resume_price):
         tracker_file.update_tracker_file({"status": "ok_to_trade", "last_side": tracker_info['last_side']})
-        print(f"{datetime.now().strftime('%H:%M:%S')}: status is now ok_to_trade")
+        logging.info(f"{datetime.now().strftime('%H:%M:%S')}: status is now ok_to_trade")
     else:
-        print(f"{datetime.now().strftime('%H:%M:%S')}: <<< status is still {tracker_info['status']}")
+        logging.info(f"{datetime.now().strftime('%H:%M:%S')}: <<< status is still {tracker_info['status']}")
         sys.exit()
 
 
@@ -191,7 +191,7 @@ if open_position:
         amount=amount,
         trigger_price=data['average'].iloc[-1],
         reduce=True,
-        print_error=True,
+        logging.info_error=True,
     )
     # sl
     sl_order = bitget.place_trigger_market_order(
@@ -200,7 +200,7 @@ if open_position:
         amount=amount,
         trigger_price=stop_loss_price,
         reduce=True,
-        print_error=True,
+        logging.info_error=True,
     )
     info = {
         "status": "ok_to_trade",
@@ -208,7 +208,7 @@ if open_position:
         "stop_loss_price": stop_loss_price,
         "stop_loss_ids": [sl_order['id']],
     }
-    print(f"{datetime.now().strftime('%H:%M:%S')}: placed close {position['side']} orders: exit price {data['average'].iloc[-1]}, sl price {stop_loss_price}")
+    logging.info(f"{datetime.now().strftime('%H:%M:%S')}: placed close {position['side']} orders: exit price {data['average'].iloc[-1]}, sl price {stop_loss_price}")
 
 else:
     info = {
@@ -220,8 +220,8 @@ else:
 
 # --- FETCHING AND COMPUTING BALANCE ---
 balance = params['balance_fraction'] * params['leverage'] * bitget.fetch_balance()['USDT']['total']
-print(f"{datetime.now().strftime('%H:%M:%S')}: the BARE trading balance is {bitget.fetch_balance()['USDT']['total']}")
-print(f"{datetime.now().strftime('%H:%M:%S')}: the trading balance is {balance}")
+logging.info(f"{datetime.now().strftime('%H:%M:%S')}: the BARE trading balance is {bitget.fetch_balance()['USDT']['total']}")
+logging.info(f"{datetime.now().strftime('%H:%M:%S')}: the trading balance is {balance}")
 
 # --- PLACE ORDERS DEPENDING ON HOW MANY BANDS HAVE ALREADY BEEN HIT ---
 if open_position:
@@ -255,9 +255,9 @@ if long_ok:
                 amount=amount,
                 trigger_price=entry_trigger_price,
                 price=entry_limit_price,
-                print_error=True,
+                logging.info_error=True,
             )
-            print(f"{datetime.now().strftime('%H:%M:%S')}: placed open long trigger limit order of {amount}, trigger price {entry_trigger_price}, price {entry_limit_price}")
+            logging.info(f"{datetime.now().strftime('%H:%M:%S')}: placed open long trigger limit order of {amount}, trigger price {entry_trigger_price}, price {entry_limit_price}")
             # exit
             bitget.place_trigger_market_order(
                 symbol=params['symbol'],
@@ -265,9 +265,9 @@ if long_ok:
                 amount=amount,
                 trigger_price=data['average'].iloc[-1],
                 reduce=True,
-                print_error=True,
+                logging.info_error=True,
             )
-            print(f"{datetime.now().strftime('%H:%M:%S')}: placed exit long trigger market order of {amount}, price {data['average'].iloc[-1]}")
+            logging.info(f"{datetime.now().strftime('%H:%M:%S')}: placed exit long trigger market order of {amount}, price {data['average'].iloc[-1]}")
             # sl
             sl_order = bitget.place_trigger_market_order(
                 symbol=params['symbol'],
@@ -275,17 +275,17 @@ if long_ok:
                 amount=amount,
                 trigger_price=data[f'band_low_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct']),
                 reduce=True,
-                print_error=True,
+                logging.info_error=True,
             )
             if sl_order:
                 info["stop_loss_ids"].append(sl_order['id'])
-                print(f"{datetime.now().strftime('%H:%M:%S')}: placed sl long trigger market order of {amount}, price {data[f'band_low_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct'])}")
+                logging.info(f"{datetime.now().strftime('%H:%M:%S')}: placed sl long trigger market order of {amount}, price {data[f'band_low_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct'])}")
             else:
                 if isinstance(position, list) and len(position) > 0:
                     position = position[0]  # Ensure we reference the first position
-                    print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ Failed to place stop loss order for {position.get('side', 'unknown')} position.")
+                    logging.info(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ Failed to place stop loss order for {position.get('side', 'unknown')} position.")
         else:
-            print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ long orders not placed for envelope {i+1}, amount {amount} smaller than minimum requirement {min_amount}")
+            logging.info(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ long orders not placed for envelope {i+1}, amount {amount} smaller than minimum requirement {min_amount}")
 
 if short_ok:
     for i in range_shorts:
@@ -301,9 +301,9 @@ if short_ok:
                 amount=amount,
                 trigger_price= entry_trigger_price,
                 price=entry_limit_price,
-                print_error=True,
+                logging.info_error=True,
             )
-            print(f"{datetime.now().strftime('%H:%M:%S')}: placed open short trigger limit order of {amount}, trigger price {entry_trigger_price}, price {entry_limit_price}")
+            logging.info(f"{datetime.now().strftime('%H:%M:%S')}: placed open short trigger limit order of {amount}, trigger price {entry_trigger_price}, price {entry_limit_price}")
             # exit
             bitget.place_trigger_market_order(
                 symbol=params['symbol'],
@@ -311,9 +311,9 @@ if short_ok:
                 amount=amount,
                 trigger_price=data['average'].iloc[-1],
                 reduce=True,
-                print_error=True,
+                logging.info_error=True,
             )
-            print(f"{datetime.now().strftime('%H:%M:%S')}: placed exit short trigger market order of {amount}, price {data['average'].iloc[-1]}")
+            logging.info(f"{datetime.now().strftime('%H:%M:%S')}: placed exit short trigger market order of {amount}, price {data['average'].iloc[-1]}")
             # sl
             sl_order = bitget.place_trigger_market_order(
                 symbol=params['symbol'],
@@ -321,17 +321,17 @@ if short_ok:
                 amount=amount,
                 trigger_price=data[f'band_high_{i + 1}'].iloc[-1] * (1 + params['stop_loss_pct']),
                 reduce=True,
-                print_error=True,
+                logging.info_error=True,
             )
             if sl_order:
                 info["stop_loss_ids"].append(sl_order['id'])
-                print(f"{datetime.now().strftime('%H:%M:%S')}: placed sl short trigger market order of {amount}, price {data[f'band_high_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct'])}")
+                logging.info(f"{datetime.now().strftime('%H:%M:%S')}: placed sl short trigger market order of {amount}, price {data[f'band_high_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct'])}")
             else:
                 if isinstance(position, list) and len(position) > 0:
                     position = position[0]  # Ensure we reference the first position
-                    print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ Failed to place stop loss order for {position.get('side', 'unknown')} position.")
+                    logging.info(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ Failed to place stop loss order for {position.get('side', 'unknown')} position.")
         else:
-            print(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ short orders not placed for envelope {i+1}, amount {amount} smaller than minimum requirement {min_amount}")
+            logging.info(f"{datetime.now().strftime('%H:%M:%S')}: /!\\ short orders not placed for envelope {i+1}, amount {amount} smaller than minimum requirement {min_amount}")
 
 tracker_file.update_tracker_file(info)
-print(f"{datetime.now().strftime('%H:%M:%S')}: <<< all done")
+logging.info(f"{datetime.now().strftime('%H:%M:%S')}: <<< all done")
