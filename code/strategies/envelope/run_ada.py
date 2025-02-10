@@ -27,6 +27,7 @@ logging.basicConfig(
         logging.StreamHandler()  # Log to console as well
     ]
 )
+logging.info("Logging system initialized successfully.")
 
 # Initialize tracker file
 tracker_file = TrackerFile(config.PATH_TRACKER_FILE, sympol)
