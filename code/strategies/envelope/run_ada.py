@@ -27,7 +27,6 @@ logging.basicConfig(
         logging.StreamHandler()  # Log to console as well
     ]
 )
-logging.info("Logging system initialized successfully.")
 
 # Initialize tracker file
 tracker_file = TrackerFile(config.PATH_TRACKER_FILE, sympol)
@@ -191,7 +190,7 @@ if open_position:
         amount=amount,
         trigger_price=data['average'].iloc[-1],
         reduce=True,
-        logging.info_error=True,
+        print_error=True,
     )
     # sl
     sl_order = bitget.place_trigger_market_order(
@@ -200,7 +199,7 @@ if open_position:
         amount=amount,
         trigger_price=stop_loss_price,
         reduce=True,
-        logging.info_error=True,
+        print_error=True,
     )
     info = {
         "status": "ok_to_trade",
@@ -255,7 +254,7 @@ if long_ok:
                 amount=amount,
                 trigger_price=entry_trigger_price,
                 price=entry_limit_price,
-                logging.info_error=True,
+                print_error=True,
             )
             logging.info(f"{datetime.now().strftime('%H:%M:%S')}: placed open long trigger limit order of {amount}, trigger price {entry_trigger_price}, price {entry_limit_price}")
             # exit
@@ -265,9 +264,9 @@ if long_ok:
                 amount=amount,
                 trigger_price=data['average'].iloc[-1],
                 reduce=True,
-                logging.info_error=True,
+                print_error=True,
             )
-            logging.info(f"{datetime.now().strftime('%H:%M:%S')}: placed exit long trigger market order of {amount}, price {data['average'].iloc[-1]}")
+            print(f"{datetime.now().strftime('%H:%M:%S')}: placed exit long trigger market order of {amount}, price {data['average'].iloc[-1]}")
             # sl
             sl_order = bitget.place_trigger_market_order(
                 symbol=params['symbol'],
@@ -275,7 +274,7 @@ if long_ok:
                 amount=amount,
                 trigger_price=data[f'band_low_{i + 1}'].iloc[-1] * (1 - params['stop_loss_pct']),
                 reduce=True,
-                logging.info_error=True,
+                print_error=True,
             )
             if sl_order:
                 info["stop_loss_ids"].append(sl_order['id'])
@@ -301,7 +300,7 @@ if short_ok:
                 amount=amount,
                 trigger_price= entry_trigger_price,
                 price=entry_limit_price,
-                logging.info_error=True,
+                print_error=True,
             )
             logging.info(f"{datetime.now().strftime('%H:%M:%S')}: placed open short trigger limit order of {amount}, trigger price {entry_trigger_price}, price {entry_limit_price}")
             # exit
@@ -311,7 +310,7 @@ if short_ok:
                 amount=amount,
                 trigger_price=data['average'].iloc[-1],
                 reduce=True,
-                logging.info_error=True,
+                print_error=True,
             )
             logging.info(f"{datetime.now().strftime('%H:%M:%S')}: placed exit short trigger market order of {amount}, price {data['average'].iloc[-1]}")
             # sl
@@ -321,7 +320,7 @@ if short_ok:
                 amount=amount,
                 trigger_price=data[f'band_high_{i + 1}'].iloc[-1] * (1 + params['stop_loss_pct']),
                 reduce=True,
-                logging.info_error=True,
+                print_error=True,
             )
             if sl_order:
                 info["stop_loss_ids"].append(sl_order['id'])
