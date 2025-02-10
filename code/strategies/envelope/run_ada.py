@@ -8,8 +8,13 @@ import time
 import config
 import logging
 
-sys.path.append(os.path.join(config.PATH_PROJECT_ROOT, 'code', 'utilities'))
-from utilities.bybit_client_old import BybitClient
+if not os.path.exists(config.PATH_UTILITIES):
+    print("❌ Path does not exist! Check PATH_PROJECT_ROOT")
+else:
+    sys.path.append(config.PATH_UTILITIES)
+    print("✅ Path exists and is added to sys.path")
+
+from utilities.utilities.bybit_client_old import BybitClient
 from utilities.tracker_file import TrackerFile
 
 # Basic configuration
