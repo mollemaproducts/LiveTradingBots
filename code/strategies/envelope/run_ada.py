@@ -8,9 +8,14 @@ import time
 import config
 import logging
 
-sys.path.append(os.path.join(config.PATH_PROJECT_ROOT, 'code', 'utilities'))
+utilities_path = os.path.join(config.PATH_PROJECT_ROOT, 'code', 'utilities')
+sys.path.append(utilities_path)
+print(os.listdir(print(os.listdir(utilities_path))))
+
 from utilities.bybit_client_old import BybitClient
 from utilities.tracker_file import TrackerFile
+
+
 
 # Basic configuration
 sympol = "ADA/USDT:USDT"
