@@ -13,12 +13,13 @@ from bybit_client_old import BybitClient
 from tracker_file import TrackerFile
 
 # Basic configuration
-sympol = "XRP/USDT:USDT"
+coin = "XRP"
+sympol = coin + "/USDT:USDT"
 balance_fraction = 0.2
 SLEEP_TIME=2
 
 # Initialize logging
-log_file = os.path.join(config.PATH_LOGGING, 'bot_xrp.log')
+log_file = os.path.join(config.PATH_LOGGING, "bot_" + coin.lower() + ".log")
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',

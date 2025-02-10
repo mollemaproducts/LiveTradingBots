@@ -13,12 +13,13 @@ from bybit_client_old import BybitClient
 from tracker_file import TrackerFile
 
 # Basic configuration
-sympol = "ETH/USDT:USDT"
+coin = "ETH"
+sympol = coin + "/USDT:USDT"
 balance_fraction = 0.3
 SLEEP_TIME=2
 
 # Initialize logging
-log_file = os.path.join(config.PATH_LOGGING, 'bot_eth.log')
+log_file = os.path.join(config.PATH_LOGGING, "bot_" + coin.lower() + ".log")
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
