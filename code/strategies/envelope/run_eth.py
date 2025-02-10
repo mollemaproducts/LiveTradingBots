@@ -18,7 +18,7 @@ balance_fraction = 0.3
 SLEEP_TIME=2
 
 # Initialize logging
-log_file = os.path.join(config.PATH_LOGGING, 'bot_ada.log')
+log_file = os.path.join(config.PATH_LOGGING, 'bot_eth.log')
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
