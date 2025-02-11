@@ -224,7 +224,7 @@ logging.info(f"{datetime.now().strftime('%H:%M:%S')}: the trading balance is {ba
 
 current_balance = bitget.fetch_balance()
 usdt_balance = float(current_balance['total'].get('USDT', 0)) # Ensure it's a float, default to 0 if missing
-logging.info(f"{datetime.now().strftime('%H:%M:%S')}:Current balance (USDT): {usdt_balance}")
+logging.info(f"{datetime.now().strftime('%H:%M:%S')}: Current balance (USDT): {usdt_balance}")
 
 # --- PLACE ORDERS DEPENDING ON HOW MANY BANDS HAVE ALREADY BEEN HIT ---
 if open_position:
