@@ -10,6 +10,7 @@ import logging
 
 sys.path.append(config.PATH_UTILITIES)
 from bybit_client_old import BybitClient
+from logger import Logger
 from tracker_file import TrackerFile
 from strategy_logic_old import StrategyLogic
 
@@ -18,24 +19,11 @@ coin = "BTC"
 sympol = coin + "/USDT:USDT"
 balance_fraction = 0.4
 
-# Initialize logging
-log_file = os.path.join(config.PATH_LOGGING, "bot_" + coin.lower() + ".log")
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_file),  # Log to file
-        logging.StreamHandler()  # Log to console as well
-    ]
-)
-
-# Initialize tracker file
+# Initialize
+Logger.init(config.PATH_LOGGING, coin)
 tracker_file = TrackerFile(config.PATH_TRACKER_FILE, sympol)
-
-# Initialize the broker client
 path_secret_json = os.path.join(config.PATH_PROJECT_ROOT, "secret.json")
 broker_client = BybitClient(path_secret_json, "bybit-testnet")
-bitget = broker_client
 
 # Configuration
 params = {
