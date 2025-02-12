@@ -13,9 +13,9 @@ from bybit_client_old import BybitClient
 from tracker_file import TrackerFile
 
 # Basic configuration
-coin = "XRP"
+coin = "ADA"
 sympol = coin + "/USDT:USDT"
-balance_fraction = 0.1
+balance_fraction = 0.15
 SLEEP_TIME=2
 
 # Initialize logging
