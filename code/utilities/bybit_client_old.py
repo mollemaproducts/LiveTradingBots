@@ -222,6 +222,6 @@ def fetch_margin_mode(self, symbol: str) -> str:
     except Exception as e:
         raise Exception(f"Failed to fetch margin mode for {symbol}: {e}")
 
-    def fetch_ohlcv(self, symbol, timeframe, limit=100):
-        """Wrapper for CCXT fetch_ohlcv"""
-        return  self.session.fetch_ohlcv(symbol, timeframe, limit=limit)
+def fetch_ohlcv(self, symbol, timeframe, limit=100):
+    """Wrapper for CCXT fetch_ohlcv"""
+    return  self.session.fetch_ohlcv(symbol, timeframe, limit=limit)
