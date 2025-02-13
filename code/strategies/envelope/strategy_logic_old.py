@@ -26,7 +26,6 @@ class StrategyLogic:
             self.broker_client.cancel_order(order['id'], self.params['symbol'])
             time.sleep(self.SLEEP_TIME)
 
-
         trigger_orders = self.broker_client.fetch_open_trigger_orders(self.params['symbol'])
         long_orders_left = 0
         short_orders_left = 0
