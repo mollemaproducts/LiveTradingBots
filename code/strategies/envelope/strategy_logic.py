@@ -46,9 +46,13 @@ class StrategyLogic:
         if self.params['average_type'] == 'DCM':
             ta_obj = ta.volatility.DonchianChannel(data['high'], data['low'], data['close'],
                                                    window=self.params['average_period'])
-            data['average'] = ta_obj.donchian_channel_mband()
+            data['band_low_1'] = ta_obj.donchian_channel_lband()
+            data['band_low_2'] = ta_obj.donchian_channel_mband()  # Optional, if needed
+            data['band_low_3'] = ta_obj.donchian_channel_uband()  # Optional, if needed
+            logging.info("Donchian Channel bands calculated.")
         else:
             data['average'] = ta.trend.sma_indicator(data['close'], window=self.params['average_period'])
+            logging.info("Simple Moving Average calculated.")
 
         logging.info("Fetched OHLCV data and calculated indicators.")
         return data
@@ -71,12 +75,14 @@ class StrategyLogic:
 
     def place_orders(self, data, balance):
         """Place long and short orders based on the strategy."""
+        logging.info(f"Data columns: {data.columns}")  # Log the columns for debugging
         for i, e in enumerate(self.params['envelopes']):
-            if f'band_low_{i + 1}' not in data.columns:
-                logging.warning(f"band_low_{i + 1} is missing in data, skipping order placement.")
+            band_column = f'band_low_{i + 1}'
+            if band_column not in data.columns:
+                logging.warning(f"{band_column} is missing in data, skipping order placement.")
                 continue
 
-            entry_price = data[f'band_low_{i + 1}'].iloc[-1]
+            entry_price = data[band_column].iloc[-1]
             trigger_price = entry_price * (1 + self.trigger_price_delta)
             amount = balance / len(self.params['envelopes']) / entry_price
 
