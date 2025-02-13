@@ -202,26 +202,26 @@ class BybitClient():
             else:
                 raise err
 
-def fetch_margin_mode(self, symbol: str) -> str:
-    try:
-        # Fetch margin mode using Bybit API's endpoint for position settings
-        params = {'symbol': symbol}
-        endpoint = '/v2/private/position/switch-mode'
+    def fetch_margin_mode(self, symbol: str) -> str:
+        try:
+            # Fetch margin mode using Bybit API's endpoint for position settings
+            params = {'symbol': symbol}
+            endpoint = '/v2/private/position/switch-mode'
 
-        # Make the request to the private endpoint using ccxt's request method
-        response = self.session.request('GET', endpoint, params=params)
+            # Make the request to the private endpoint using ccxt's request method
+            response = self.session.request('GET', endpoint, params=params)
 
-        # If successful, it should return something like:
-        # {'retCode': 0, 'result': {'symbol': 'ETHUSDT', 'position_mode': 'single'}}
+            # If successful, it should return something like:
+            # {'retCode': 0, 'result': {'symbol': 'ETHUSDT', 'position_mode': 'single'}}
 
-        if response['retCode'] == 0:
-            return response['result']['position_mode']
-        else:
-            raise ccxt.BaseError(f"Error fetching margin mode: {response.get('retMsg')}")
+            if response['retCode'] == 0:
+                return response['result']['position_mode']
+            else:
+                raise ccxt.BaseError(f"Error fetching margin mode: {response.get('retMsg')}")
 
-    except Exception as e:
-        raise Exception(f"Failed to fetch margin mode for {symbol}: {e}")
+        except Exception as e:
+            raise Exception(f"Failed to fetch margin mode for {symbol}: {e}")
 
-def fetch_ohlcv(self, symbol, timeframe, limit=100):
-    """Wrapper for CCXT fetch_ohlcv"""
-    return  self.session.fetch_ohlcv(symbol, timeframe, limit=limit)
+    def fetch_ohlcv(self, symbol, timeframe, limit=100):
+        """Wrapper for CCXT fetch_ohlcv"""
+        return  self.session.fetch_ohlcv(symbol, timeframe, limit=limit)
