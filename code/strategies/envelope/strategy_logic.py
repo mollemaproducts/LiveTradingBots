@@ -48,7 +48,7 @@ class StrategyLogic:
                                                    window=self.params['average_period'])
             data['band_low_1'] = ta_obj.donchian_channel_lband()
             data['band_low_2'] = ta_obj.donchian_channel_mband()  # Optional, if needed
-            data['band_low_3'] = ta_obj.donchian_channel_uband()  # Optional, if needed
+            data['band_low_3'] = ta_obj.donchian_channel_hband()  # Updated to 'hband' for high band
             logging.info("Donchian Channel bands calculated.")
         else:
             data['average'] = ta.trend.sma_indicator(data['close'], window=self.params['average_period'])
