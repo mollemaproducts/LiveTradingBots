@@ -20,11 +20,11 @@ class StrategyLogic:
 
 
     def run(self):
-        cancel_open_orders(self.broker_client, self.params['symbol'])
-        data = fetch_ohlcv_data(self.broker_client, self.params)
-        manage_positions(self.broker_client, self.params, self.tracker_file)
+        self.cancel_open_orders(self.broker_client, self.params['symbol'])
+        data = self.fetch_ohlcv_data(self.broker_client, self.params)
+        self.manage_positions(self.broker_client, self.params, self.tracker_file)
         balance = self.broker_client.fetch_balance()['USDT']['total'] * self.params['balance_fraction']
-        place_orders(self.broker_client, data, self.params, balance)
+        self.place_orders(self.broker_client, data, self.params, balance)
         logging.info("Execution completed successfully.")
 
     def cancel_open_orders(broker_client, symbol):
