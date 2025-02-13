@@ -186,21 +186,42 @@ class BybitClient():
             return "above"
 
 
-    def place_trigger_limit_order(self, symbol: str, side: str, amount: float, trigger_price: float, price: float, reduce: bool = False, print_error: bool = False) -> Optional[Dict[str, Any]]:
+def place_trigger_limit_order(self, symbol: str, side: str, amount: float, trigger_price: float, price: float, reduce: bool = False, print_error: bool = False) -> Optional[Dict[str, Any]]:
+    try:
+
+        if trigger_price is None:
+            raise ValueError("Missing required parameter: triggerPrice")
+
         try:
-            amount = self.amount_to_precision(symbol, amount)
-            trigger_price = self.price_to_precision(symbol, trigger_price)
-            price = self.price_to_precision(symbol, price)
-            trigger_direction = self.get_trigger_direction(side)
-            params = {'reduceOnly': reduce, 'triggerPrice': trigger_price, 'delegateType': 'price_fill',
-                      'triggerDirection': trigger_direction}
-            return self.session.create_order(symbol, 'limit', side, amount, price, params=params)
-        except Exception as err:
-            if print_error:
-                print(err)
-                return None
-            else:
-                raise err
+            trigger_price = float(trigger_price)  # Convert to float
+        except ValueError:
+            raise ValueError(f"Invalid trigger price format: {trigger_price}")
+
+        amount = self.amount_to_precision(symbol, amount)
+        trigger_price = float(self.price_to_precision(symbol, trigger_price))
+        price = self.price_to_precision(symbol, price)
+        trigger_direction = self.get_trigger_direction(side)
+        params = {'reduceOnly': reduce, 'triggerPrice': trigger_price, 'delegateType': 'price_fill',
+                  'triggerDirection': trigger_direction}
+
+        # Fetch the current market price
+        ticker = self.session.fetch_ticker(symbol)
+        current_market_price = ticker['last']
+
+        # Validate trigger price
+        if side == 'buy' and trigger_price >= current_market_price:
+            raise ValueError(f"Invalid trigger price {itrigger_price} for BUY order. Must be LOWER than {current_market_price}")
+        elif side == 'sell' and trigger_price <= current_market_price:
+            raise ValueError(f"Invalid trigger price {trigger_price} for SELL order. Must be HIGHER than {current_market_price}")
+
+        return self.session.create_order(symbol, 'limit', side, amount, price, params=params)
+    except Exception as err:
+        if print_error:
+            print(err)
+            return None
+        else:
+            raise err
+
 
     def fetch_margin_mode(self, symbol: str) -> str:
         try:

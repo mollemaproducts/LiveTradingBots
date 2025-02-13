@@ -53,10 +53,17 @@ class StrategyLogic:
         else:
             raise ValueError(f"The average type {self.params['average_type']} is not supported")
 
-        for i, e in enumerate(self.params['envelopes']):
-            data[f'band_high_{i + 1}'] = data['average'] / (1 - e)
-            data[f'band_low_{i + 1}'] = data['average'] * (1 - e)
-        logging.info(f"{datetime.now().strftime('%H:%M:%S')}: ohlcv data fetched")
+      #  for i, e in enumerate(self.params['envelopes']):
+      #      data[f'band_high_{i + 1}'] = data['average'] / (1 - e)
+      #      data[f'band_low_{i + 1}'] = data['average'] * (1 - e)
+      #  logging.info(f"{datetime.now().strftime('%H:%M:%S')}: ohlcv data fetched")
+
+        # --- DETERMINE TRIGGER PRICES ---
+        for i in range(len(self.params['envelopes'])):
+            data[f'entry_trigger_high_{i + 1}'] = data[f'band_high_{i + 1}'].iloc[-1] * (1 - self.TRIGGER_PRICE_DELTA)
+            data[f'entry_trigger_low_{i + 1}'] = data[f'band_low_{i + 1}'].iloc[-1] * (1 + self.TRIGGER_PRICE_DELTA)
+        logging.info(f"{datetime.now().strftime('%H:%M:%S')}: trigger prices calculated")
+
 
 
         # --- CHECKS IF STOP LOSS WAS TRIGGERED ---
