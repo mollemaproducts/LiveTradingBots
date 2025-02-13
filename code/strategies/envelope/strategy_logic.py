@@ -85,7 +85,7 @@ class StrategyLogic:
             entry_price = data[f'band_low_{i + 1}'].iloc[-1]
             trigger_price = entry_price * (1 + self.trigger_price_delta)
 
-            # Adjust trigger_price to be higher than current price for long orders
+            # Adjust trigger_price to be higher than current price for buy orders
             if trigger_price <= current_price:
                 trigger_price = current_price * 1.01  # Set trigger price to 1% above current price
 
@@ -96,6 +96,6 @@ class StrategyLogic:
                 self.broker_client.place_trigger_limit_order(
                     self.params['symbol'], 'buy', amount, trigger_price, entry_price
                 )
-                logging.info(f"Placed buy order at {entry_price}")
+                logging.info(f"Placed buy order at {entry_price} with trigger price at {trigger_price}")
             else:
                 logging.warning(f"Amount {amount} is less than minimum tradable amount.")
