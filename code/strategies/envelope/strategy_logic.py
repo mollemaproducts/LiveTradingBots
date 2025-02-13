@@ -75,20 +75,27 @@ class StrategyLogic:
 
     def place_orders(self, data, balance):
         """Place long and short orders based on the strategy."""
-        logging.info(f"Data columns: {data.columns}")  # Log the columns for debugging
+        current_price = self.broker_client.fetch_ticker(self.params['symbol'])['last']
+
         for i, e in enumerate(self.params['envelopes']):
-            band_column = f'band_low_{i + 1}'
-            if band_column not in data.columns:
-                logging.warning(f"{band_column} is missing in data, skipping order placement.")
+            if f'band_low_{i + 1}' not in data.columns:
+                logging.warning(f"band_low_{i + 1} is missing in data, skipping order placement.")
                 continue
 
-            entry_price = data[band_column].iloc[-1]
+            entry_price = data[f'band_low_{i + 1}'].iloc[-1]
             trigger_price = entry_price * (1 + self.trigger_price_delta)
-            amount = balance / len(self.params['envelopes']) / entry_price
 
+            # Adjust trigger_price to be higher than current price for long orders
+            if trigger_price <= current_price:
+                trigger_price = current_price * 1.01  # Set trigger price to 1% above current price
+
+            amount = balance / len(self.params['envelopes']) / entry_price
             min_amount = self.broker_client.fetch_min_amount_tradable(self.params['symbol'])
+
             if amount >= min_amount:
                 self.broker_client.place_trigger_limit_order(
                     self.params['symbol'], 'buy', amount, trigger_price, entry_price
                 )
                 logging.info(f"Placed buy order at {entry_price}")
+            else:
+                logging.warning(f"Amount {amount} is less than minimum tradable amount.")
