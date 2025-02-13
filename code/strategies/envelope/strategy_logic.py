@@ -97,7 +97,10 @@ class StrategyLogic:
             min_amount = self.broker_client.fetch_min_amount_tradable(self.params['symbol'])
 
             if amount >= min_amount:
-                side = 'buy' if entry_price > current_price else 'sell'
+                if entry_price > current_price:
+                    side = 'buy'  # Long order
+                else:
+                    side = 'sell'  # Short order
                 self.broker_client.place_trigger_limit_order(
                     self.params['symbol'], side, amount, trigger_price, entry_price
                 )
