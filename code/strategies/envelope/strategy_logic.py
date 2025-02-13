@@ -39,7 +39,8 @@ class StrategyLogic:
 
     def fetch_ohlcv_data(self):
         """Fetch OHLCV data and calculate indicators."""
-        data = self.broker_client.fetch_ohlcv(self.params['symbol'], self.params['timeframe'], limit=100)
+        ohlcv = self.broker_client.fetch_ohlcv(self.params['symbol'], self.params['timeframe'], 100)
+        data = self.format_ohlcv_data(ohlcv)
         data = self.format_ohlcv_data(data)
 
         if self.params['average_type'] == 'DCM':
