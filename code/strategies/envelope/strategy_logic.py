@@ -9,6 +9,7 @@ import config
 import logging
 
 class StrategyLogic:
+
     SLEEP_TIME = 2
     TRIGGER_PRICE_DELTA = 0.005  # Default for a 1h timeframe
 
@@ -20,10 +21,8 @@ class StrategyLogic:
 
     def run(self):
         self.cancel_open_orders()
-        data = self.fetch_ohlcv_data()
         self.manage_positions()
-        balance = self.broker_client.fetch_balance()['USDT']['total'] * self.params['balance_fraction']
-        self.place_orders(data, balance)
+        self.place_orders()
         logging.info("Execution completed successfully.")
 
     def cancel_open_orders(self):
@@ -73,9 +72,10 @@ class StrategyLogic:
         else:
             logging.info("No open positions.")
 
-    def place_orders(self, data, balance):
+    def place_orders(self):
         """Place long and short orders based on the strategy."""
         current_price = self.broker_client.fetch_ticker(self.params['symbol'])['last']
+        data = self.fetch_ohlcv_data()
 
         for i, e in enumerate(self.params['envelopes']):
             if f'band_low_{i + 1}' not in data.columns:
@@ -93,6 +93,7 @@ class StrategyLogic:
                 if trigger_price >= current_price:
                     trigger_price = current_price * 0.99  # Set trigger price to 1% below current price
 
+            balance = self.broker_client.fetch_balance()['USDT']['total'] * self.params['balance_fraction']
             amount = balance / len(self.params['envelopes']) / entry_price
             min_amount = self.broker_client.fetch_min_amount_tradable(self.params['symbol'])
 

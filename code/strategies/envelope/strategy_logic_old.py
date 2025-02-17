@@ -20,24 +20,9 @@ class StrategyLogic:
     def run(self):
         self.TRIGGER_PRICE_DELTA = 0.005  # what I use for a 1h timeframe
 
-        # --- CANCEL OPEN ORDERS ---
-        orders = self.broker_client.fetch_open_orders(self.params['symbol'])
-        for order in orders:
-            self.broker_client.cancel_order(order['id'], self.params['symbol'])
-            time.sleep(self.SLEEP_TIME)
-
-        trigger_orders = self.broker_client.fetch_open_trigger_orders(self.params['symbol'])
-        long_orders_left = 0
-        short_orders_left = 0
-        for order in trigger_orders:
-            #logging.info(order['info'])
-            if order['side'] == 'buy' and order['info']['tradeSide'] == 'open':
-                long_orders_left += 1
-            elif order['side'] == 'sell' and order['info']['tradeSide'] == 'open':
-                short_orders_left += 1
-            self.broker_client.cancel_trigger_order(order['id'], self.params['symbol'])
-        logging.info(f"{datetime.now().strftime('%H:%M:%S')}: orders cancelled, {long_orders_left} longs left, {short_orders_left} shorts left")
-        time.sleep(self.SLEEP_TIME)
+        # --- CLOSE OPEN LIMIT AND OPEN TRIGGER ORDERS ---
+        self.close_open_orders()
+        long_orders_left, short_orders_left = self.close_trigger_orders(0, 0)
 
         # --- FETCH OHLCV DATA, CALCULATE INDICATORS ---
         data = self.broker_client.fetch_recent_ohlcv(self.params['symbol'], self.params['timeframe'], 100).iloc[:-1]
@@ -309,3 +294,21 @@ class StrategyLogic:
 
         self.tracker_file.update_tracker_file(info)
         logging.info(f"{datetime.now().strftime('%H:%M:%S')}: <<< all done")
+
+    def close_trigger_orders(self, long_orders_left, short_orders_left):
+        trigger_orders = self.broker_client.fetch_open_trigger_orders(self.params['symbol'])
+        if trigger_orders :
+            for order in trigger_orders:
+                if order['side'] == 'buy' and order['info']['tradeSide'] == 'open':
+                    long_orders_left += 1
+                elif order['side'] == 'sell' and order['info']['tradeSide'] == 'open':
+                    short_orders_left += 1
+                self.broker_client.cancel_trigger_order(order['id'], self.params['symbol'])
+                logging.info(
+                    f"{datetime.now().strftime('%H:%M:%S')}: orders cancelled, {long_orders_left} longs left, {short_orders_left} shorts left")
+        return long_orders_left, short_orders_left
+
+    def close_open_orders(self):
+        orders = self.broker_client.fetch_open_orders(self.params['symbol'])
+        for order in orders:
+            self.broker_client.cancel_order(order['id'], self.params['symbol'])
