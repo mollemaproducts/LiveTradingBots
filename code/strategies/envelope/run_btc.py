@@ -23,7 +23,7 @@ balance_fraction = 0.4
 Logger.init(config.PATH_LOGGING, coin)
 tracker_file = TrackerFile(config.PATH_TRACKER_FILE, sympol)
 path_secret_json = os.path.join(config.PATH_PROJECT_ROOT, "secret.json")
-broker_client = BybitClient(path_secret_json, "bybit-testnet")
+broker_client = BybitClient(path_secret_json, "bybit_demo")
 
 # Configuration
 params = {

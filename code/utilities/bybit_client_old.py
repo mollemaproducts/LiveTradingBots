@@ -17,7 +17,8 @@ class BybitClient():
         }
 
         self.session = ccxt.bybit(client_config)
-        self.session.set_sandbox_mode(not use_real_environment)
+        #self.session.set_sandbox_mode(not use_real_environment) for testnet
+        self.session.enableDemoTrading(not use_real_environment)
 
     def fetch_ticker(self, symbol: str) -> Dict[str, Any]:
         try:
