@@ -38,28 +38,16 @@ class StrategyLogic:
         else:
             raise ValueError(f"The average type {self.params['average_type']} is not supported")
 
-      #  for i, e in enumerate(self.params['envelopes']):
-      #      data[f'band_high_{i + 1}'] = data['average'] / (1 - e)
-      #      data[f'band_low_{i + 1}'] = data['average'] * (1 - e)
-      #  logging.info(f"{datetime.now().strftime('%H:%M:%S')}: ohlcv data fetched")
-
-        # --- DETERMINE TRIGGER PRICES ---
-        print(data.columns)
-        print(data.tail())
-        for i in range(len(self.params['envelopes'])):
-            print(f"Processing envelope {i + 1} with value {i}")
+        for i, e in enumerate(self.params['envelopes']):
             if f'band_high_{i + 1}' in data.columns:
-                data[f'entry_trigger_high_{i + 1}'] = data[f'band_high_{i + 1}'].iloc[-1] * (1 - self.TRIGGER_PRICE_DELTA)
+                data[f'band_high_{i + 1}'] = data['average'] / (1 - e)
             else:
                 print(f"Column 'band_high_{i + 1}' not found!")
             if f'band_low_{i + 1}' in data.columns:
-                data[f'entry_trigger_low_{i + 1}'] = data[f'band_low_{i + 1}'].iloc[-1] * (1 + self.TRIGGER_PRICE_DELTA)
+                data[f'band_low_{i + 1}'] = data['average'] * (1 - e)
             else:
                 print(f"Column 'band_low_{i + 1}' not found!")
-        logging.info(f"{datetime.now().strftime('%H:%M:%S')}: trigger prices calculated")
-        print("After adding bands, columns:", data.columns)
-
-
+            logging.info(f"{datetime.now().strftime('%H:%M:%S')}: ohlcv data fetched")
 
         # --- CHECKS IF STOP LOSS WAS TRIGGERED ---
         closed_orders = self.broker_client.fetch_closed_trigger_orders(self.params['symbol'])
