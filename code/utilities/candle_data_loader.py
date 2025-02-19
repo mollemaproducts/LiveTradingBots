@@ -11,7 +11,8 @@ class CandleDataLoader:
             '1h': 3_600_000, '2h': 7_200_000, '4h': 14_400_000, '1d': 86_400_000,
         }
 
-    def fetch_recent_ohlcv(self, symbol: str, timeframe: str, limit: int = 1000) -> pd.DataFrame:
+    # Fetch recent candle data also know as ohlcv
+    def fetch_recent_candle_data(self, symbol: str, timeframe: str, limit: int = 1000) -> pd.DataFrame:
         """Fetch recent OHLCV data from the exchange with pagination."""
         if timeframe not in self.timeframe_to_ms:
             raise ValueError(f"Invalid timeframe: {timeframe}")

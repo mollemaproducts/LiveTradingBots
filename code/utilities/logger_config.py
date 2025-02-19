@@ -24,16 +24,13 @@ class Logger:
             while logger.hasHandlers():
                 logger.handlers.clear()
 
-            formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-
             file_handler = logging.FileHandler(Logger._log_filename, mode='a')  # Append mode
+            formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
-
             logger.setLevel(logging.INFO)
 
             logger.info(log_message)
-
 
     @staticmethod
     def create_filename_for_coin(log_path, coin):
