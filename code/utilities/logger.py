@@ -1,7 +1,7 @@
 import logging
 import os
 
-class Logger:
+class LoggerOld:
 
     @staticmethod
     def init(log_path, coin) -> None:

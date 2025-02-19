@@ -6,7 +6,9 @@ import ta
 from datetime import datetime
 import time
 import config
-import logging
+
+sys.path.append(config.PATH_UTILITIES)
+from logger_config Logger
 class StrategyLogic:
 
     SLEEP_TIME = 2
@@ -47,7 +49,7 @@ class StrategyLogic:
                 data[f'band_low_{i + 1}'] = data['average'] * (1 - e)
             else:
                 print(f"Column 'band_low_{i + 1}' not found!")
-            logging.info(f"{datetime.now().strftime('%H:%M:%S')}: ohlcv data fetched")
+            Logger.info(f"{datetime.now().strftime('%H:%M:%S')}: ohlcv data fetched")
 
         # --- CHECKS IF STOP LOSS WAS TRIGGERED ---
         closed_orders = self.broker_client.fetch_closed_trigger_orders(self.params['symbol'])

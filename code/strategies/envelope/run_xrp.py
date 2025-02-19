@@ -10,7 +10,7 @@ import logging
 
 sys.path.append(config.PATH_UTILITIES)
 from bybit_client_old import BybitClient
-from logger import Logger
+from logger_config import Logger
 from tracker_file import TrackerFile
 from strategy_logic_old import StrategyLogic
 
