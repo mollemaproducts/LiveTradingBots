@@ -12,7 +12,7 @@ class Logger:
         Logger._instance = None  # Reset instance to apply new filename
 
     @staticmethod
-    def log(log_message) -> None:
+    def info(log_message) -> None:
         """Returns a shared logger instance, fails if filename is not set."""
         if Logger._log_filename is None:
             raise RuntimeError("Log filename must be set using Logger.init() before getting the logger.")
