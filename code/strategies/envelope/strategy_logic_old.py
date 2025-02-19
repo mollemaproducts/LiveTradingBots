@@ -8,7 +8,7 @@ import time
 import config
 
 sys.path.append(config.PATH_UTILITIES)
-from logger_config Logger
+from logger_config import Logger
 class StrategyLogic:
 
     SLEEP_TIME = 2
