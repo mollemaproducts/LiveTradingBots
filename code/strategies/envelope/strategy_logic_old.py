@@ -28,7 +28,7 @@ class StrategyLogic:
         long_orders_left, short_orders_left = self.close_trigger_orders(0, 0)
 
         # --- FETCH OHLCV DATA, CALCULATE INDICATORS ---
-        data = CandleDataLoader(self.broker_client).fetch_recent_ohlcv(self.params['symbol'], self.params['timeframe'], 100).iloc[:-1]
+        data = CandleDataLoader(self.broker_client).fetch_recent_candle_data(self.params['symbol'], self.params['timeframe'], 100).iloc[:-1]
         if 'DCM' == self.params['average_type']:
             ta_obj = ta.volatility.DonchianChannel(data['high'], data['low'], data['close'], window=self.params['average_period'])
             data['average'] = ta_obj.donchian_channel_mband()
